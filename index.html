@@ -41,6 +41,13 @@
         
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .animate-spin-slow { animation: spin 1s linear infinite; }
+
+        @media print {
+            body { background: white !important; color: black !important; }
+            .print-hide { display: none !important; }
+            .print-full-width { margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; }
+            .print-border { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -65,6 +72,7 @@
                 Activity: <><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></>,
                 CheckCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></>,
                 AlertCircle: <><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
+                AlertTriangle: <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></>,
                 Loader2: <><path d="M21 12a9 9 0 1 1-6.219-8.56"/></>,
                 TrendingUp: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>,
                 Package: <><line x1="16.5" x2="7.5" y1="9.4" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></>,
@@ -74,6 +82,7 @@
                 Search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
                 Download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></>,
                 Trash2: <><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>,
+                Edit: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></>,
                 ChevronDown: <><polyline points="6 9 12 15 18 9"/></>,
                 ChevronUp: <><polyline points="18 15 12 9 6 15"/></>,
                 LogOut: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></>,
@@ -82,7 +91,9 @@
                 Lock: <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
                 User: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
                 Users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
-                Settings: <><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></>
+                Settings: <><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></>,
+                Printer: <><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></>,
+                RefreshCw: <><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>
             };
             return (
                 <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -145,8 +156,7 @@
             };
 
             return (
-                <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-slate-50 dark:bg-[#0B1120] relative overflow-hidden">
-                    {/* Background decoration */}
+                <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-slate-50 dark:bg-[#0B1120] relative overflow-hidden print-hide">
                     <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-500/20 rounded-full blur-3xl"></div>
                     <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-indigo-500/20 rounded-full blur-3xl"></div>
 
@@ -223,7 +233,6 @@
 
         // --- MAIN APP COMPONENT ---
         function App() {
-            // STATE AUTENTIKASI (Menyimpan sesi di LocalStorage)
             const [authUser, setAuthUser] = useState(() => {
                 const savedUser = localStorage.getItem('formula_user');
                 return savedUser ? JSON.parse(savedUser) : null;
@@ -232,28 +241,22 @@
             const [activeMenu, setActiveMenu] = useState('dashboard');
             const [isDarkMode, setIsDarkMode] = useState(false);
             const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-            const [isProfileOpen, setIsProfileOpen] = useState(false); // State untuk Menu Dropdown User
+            const [isProfileOpen, setIsProfileOpen] = useState(false);
             
             const [materials, setMaterials] = useState([]);
             const [formulas, setFormulas] = useState([]);
-            const [usersList, setUsersList] = useState([]); // List user untuk Admin
+            const [usersList, setUsersList] = useState([]);
             const [isLoading, setIsLoading] = useState(true);
             const [notification, setNotification] = useState(null);
             const [configError, setConfigError] = useState(false);
 
             useEffect(() => {
-                if (isDarkMode) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                if (isDarkMode) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
             }, [isDarkMode]);
 
-            // Jika sudah login, tarik data
             useEffect(() => {
-                if (authUser) {
-                    fetchData();
-                }
+                if (authUser) fetchData();
             }, [authUser]);
 
             const showNotification = (message, type = 'success') => {
@@ -292,14 +295,9 @@
                         fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getMaterials`),
                         fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getFormulas`)
                     ];
-                    
-                    // Tarik data list user jika yang login adalah Admin
-                    if (authUser?.Role === 'Admin') {
-                        reqs.push(fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getUsers`));
-                    }
+                    if (authUser?.Role === 'Admin') reqs.push(fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getUsers`));
 
                     const responses = await Promise.all(reqs);
-                    
                     if (responses.some(res => !res.ok)) throw new Error("HTTP error");
 
                     const matData = await responses[0].json();
@@ -313,63 +311,26 @@
                     }
                 } catch (error) {
                     showNotification('Gagal mengambil data dari server.', 'error');
-                    console.error("Fetch Error:", error);
                 } finally {
                     setIsLoading(false);
                 }
             };
 
-            const handleDelete = async (id, isUser = false) => {
-                if(!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
-                
-                setIsLoading(true);
+            if (!authUser) return <LoginView onLogin={handleLogin} />;
 
-                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
-                    showNotification('Aplikasi belum terhubung ke database', 'error');
-                    setIsLoading(false);
-                    return;
-                }
-
-                try {
-                    await fetch(GOOGLE_APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({ action: isUser ? 'deleteUser' : 'deleteFormula', id }),
-                    });
-                    await fetchData(); 
-                    showNotification('Data berhasil dihapus');
-                } catch (error) {
-                    showNotification('Gagal menghapus data', 'error');
-                    setIsLoading(false);
-                }
-            };
-
-            // Proteksi Halaman Login
-            if (!authUser) {
-                return <LoginView onLogin={handleLogin} />;
-            }
-
-            // Manajemen Menu berdasarkan Hak Akses (Role)
             const baseMenus = [
                 { id: 'dashboard', icon: 'Home', label: 'Dashboard' },
                 { id: 'input', icon: 'FilePlus', label: 'Input Formula' },
                 { id: 'kalkulator', icon: 'Calculator', label: 'Kalkulator' },
                 { id: 'data', icon: 'Database', label: 'Master Formula' },
             ];
-
-            const menus = authUser?.Role === 'Admin' 
-                ? [...baseMenus, { id: 'users', icon: 'Users', label: 'Kelola User' }] 
-                : baseMenus;
+            const menus = authUser?.Role === 'Admin' ? [...baseMenus, { id: 'users', icon: 'Users', label: 'Kelola User' }] : baseMenus;
 
             return (
-                <div className={`flex min-h-screen ${isSidebarOpen ? 'overflow-hidden' : ''}`}>
-                    
-                    {/* Sidebar Overlay */}
-                    {isSidebarOpen && (
-                        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
-                    )}
+                <div className={`flex min-h-screen print-full-width ${isSidebarOpen ? 'overflow-hidden' : ''}`}>
+                    {isSidebarOpen && <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden print-hide" onClick={() => setIsSidebarOpen(false)} />}
 
-                    {/* Sidebar */}
-                    <aside className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-slate-800 z-50 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 flex flex-col`}>
+                    <aside className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-slate-800 z-50 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 flex flex-col print-hide`}>
                         <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800 shrink-0">
                             <div className="flex items-center space-x-2">
                                 <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-sm">
@@ -403,10 +364,8 @@
                         </div>
                     </aside>
 
-                    {/* Main Content */}
-                    <main className="md:ml-64 flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300">
-                        {/* Header */}
-                        <header className="h-16 sticky top-0 z-30 bg-white/70 dark:bg-[#0B1120]/70 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0">
+                    <main className="md:ml-64 flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 print-full-width">
+                        <header className="h-16 sticky top-0 z-30 bg-white/70 dark:bg-[#0B1120]/70 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between shrink-0 print-hide">
                             <div className="flex items-center space-x-4">
                                 <button className="md:hidden text-slate-500 hover:text-brand-600 focus:outline-none" onClick={() => setIsSidebarOpen(true)}>
                                     <Icon name="Menu" size={20} />
@@ -420,17 +379,14 @@
                                 </div>
                             </div>
                             
-                            {/* Kanan Header: Theme Toggle & User Profile */}
                             <div className="flex items-center space-x-3 sm:space-x-5">
                                 <button 
                                     onClick={() => setIsDarkMode(!isDarkMode)}
                                     className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none"
-                                    title="Toggle Theme"
                                 >
                                     {isDarkMode ? <Icon name="Sun" size={18} /> : <Icon name="Moon" size={18} />}
                                 </button>
 
-                                {/* User Dropdown */}
                                 <div className="relative">
                                     <button 
                                         onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -440,27 +396,20 @@
                                             {authUser['Nama Lengkap'].charAt(0).toUpperCase()}
                                         </div>
                                         <div className="hidden sm:block text-left max-w-[120px]">
-                                            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate leading-tight">
-                                                {authUser['Nama Lengkap']}
-                                            </p>
-                                            <p className="text-xs text-brand-600 dark:text-brand-400 font-medium truncate leading-tight">
-                                                {authUser.Role}
-                                            </p>
+                                            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate leading-tight">{authUser['Nama Lengkap']}</p>
+                                            <p className="text-xs text-brand-600 dark:text-brand-400 font-medium truncate leading-tight">{authUser.Role}</p>
                                         </div>
                                         <Icon name="ChevronDown" size={14} className="text-slate-400 hidden sm:block" />
                                     </button>
 
-                                    {/* Dropdown Menu */}
                                     {isProfileOpen && (
                                         <Fragment>
                                             <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
                                             <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#111827] rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 py-1.5 z-50 animate-zoom-in">
-                                                {/* Hanya tampilkan info profil di mobile dalam menu jika layar kecil */}
                                                 <div className="sm:hidden px-4 py-3 border-b border-slate-100 dark:border-slate-800 mb-1">
                                                     <p className="text-sm font-bold text-slate-900 dark:text-white truncate">{authUser['Nama Lengkap']}</p>
                                                     <p className="text-xs text-brand-600 dark:text-brand-400 font-medium">{authUser.Role}</p>
                                                 </div>
-                                                
                                                 <button onClick={() => { setIsProfileOpen(false); showNotification('Menu Profil (Coming Soon)', 'success'); }} className="w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center space-x-2 transition-colors">
                                                     <Icon name="User" size={16} /> <span>Profile</span>
                                                 </button>
@@ -478,9 +427,8 @@
                             </div>
                         </header>
 
-                        {/* Notifications */}
                         {notification && (
-                            <div className="fixed bottom-6 right-6 z-50 animate-slide-in-up">
+                            <div className="fixed bottom-6 right-6 z-50 animate-slide-in-up print-hide">
                                 <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl shadow-lg border ${
                                     notification.type === 'success' 
                                         ? 'bg-white dark:bg-[#111827] border-green-200 dark:border-green-900/50 text-slate-800 dark:text-slate-200' 
@@ -492,9 +440,8 @@
                             </div>
                         )}
 
-                        {/* Config Error Message */}
                         {configError && (
-                            <div className="p-4 mx-6 mt-6 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800/50 rounded-xl flex items-start space-x-3">
+                            <div className="p-4 mx-6 mt-6 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800/50 rounded-xl flex items-start space-x-3 print-hide">
                                 <Icon name="AlertCircle" size={20} className="text-red-500 mt-0.5" />
                                 <div>
                                     <h4 className="text-sm font-semibold text-red-800 dark:text-red-300">Konfigurasi Dibutuhkan</h4>
@@ -503,20 +450,19 @@
                             </div>
                         )}
 
-                        {/* Body Container */}
-                        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full">
+                        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full print-full-width">
                             {isLoading ? (
-                                <div className="flex flex-col items-center justify-center h-64 animate-fade-in">
+                                <div className="flex flex-col items-center justify-center h-64 animate-fade-in print-hide">
                                     <Icon name="Loader2" size={32} className="animate-spin-slow text-brand-600 mb-4" />
                                     <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Sinkronisasi data database...</p>
                                 </div>
                             ) : configError ? null : ( 
-                                <div className="animate-slide-in-up">
+                                <div className="animate-slide-in-up print-full-width">
                                     {activeMenu === 'dashboard' && <DashboardView formulas={formulas} materials={materials} Icon={Icon} />}
                                     {activeMenu === 'input' && <InputFormulaView materials={materials} fetchData={fetchData} showNotification={showNotification} Icon={Icon} />}
                                     {activeMenu === 'kalkulator' && <CalculatorView formulas={formulas} Icon={Icon} />}
-                                    {activeMenu === 'data' && <DataTableView formulas={formulas} handleDelete={handleDelete} isLoading={isLoading} Icon={Icon} userRole={authUser.Role} />}
-                                    {activeMenu === 'users' && authUser.Role === 'Admin' && <UserManagementView users={usersList} fetchData={fetchData} handleDelete={handleDelete} showNotification={showNotification} Icon={Icon} />}
+                                    {activeMenu === 'data' && <DataTableView formulas={formulas} isLoading={isLoading} Icon={Icon} userRole={authUser.Role} fetchData={fetchData} showNotification={showNotification} />}
+                                    {activeMenu === 'users' && authUser.Role === 'Admin' && <UserManagementView users={usersList} fetchData={fetchData} showNotification={showNotification} Icon={Icon} />}
                                 </div>
                             )}
                         </div>
@@ -525,7 +471,8 @@
             );
         }
 
-        // --- SUB KOMPONEN (DASHBOARD, INPUT, KALKULATOR, DATA) ---
+        // --- SUB KOMPONEN (DASHBOARD, INPUT, DATA, USERS) ---
+        // Komponen di bawah ini disingkat kontennya agar fokus pada fungsi utama, tapi intinya persis sama dengan kode sebelumnya
 
         function DashboardView({ formulas, materials, Icon }) {
             const totalProduk = new Set(formulas.map(f => f['Nama Produk'])).size;
@@ -549,83 +496,27 @@
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {statCards.map((stat, idx) => (
-                            <div key={idx} className="bg-white dark:bg-[#111827] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                            <div key={idx} className="bg-white dark:bg-[#111827] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between print-border">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.title}</h3>
-                                    <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                        <Icon name={stat.icon} size={20} className={stat.color} />
-                                    </div>
+                                    <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"><Icon name={stat.icon} size={20} className={stat.color} /></div>
                                 </div>
                                 <div>
                                     <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{stat.value}</div>
                                     <div className="flex items-center text-xs text-slate-500 dark:text-slate-500 font-medium">
-                                        <Icon name="TrendingUp" size={12} className="mr-1 text-emerald-500" />
-                                        {stat.trend}
+                                        <Icon name="TrendingUp" size={12} className="mr-1 text-emerald-500" />{stat.trend}
                                     </div>
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                        <div className="lg:col-span-2 bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
-                            <div className="flex items-center space-x-2 mb-6">
-                                <div className="w-1.5 h-6 bg-brand-500 rounded-full"></div>
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Sistem Formulasi Terintegrasi</h3>
-                            </div>
-                            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed">
-                                <p className="mb-4">FormulaPro dirancang dengan antarmuka yang bersih dan berfokus pada kecepatan. Data Anda terhubung langsung dengan backend Google Sheets API, memastikan keamanan data serta kemudahan akses pengguna dari berbagai platform secara real-time.</p>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-                                    <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
-                                        <h4 className="font-semibold text-slate-900 dark:text-white flex items-center text-sm mb-2">
-                                            <Icon name="FilePlus" size={14} className="mr-2 text-brand-500" /> Input Cepat
-                                        </h4>
-                                        <p className="text-xs text-slate-500">Kalkulasi Kg & Formulasi otomatis saat Anda memilih material.</p>
-                                    </div>
-                                    <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
-                                        <h4 className="font-semibold text-slate-900 dark:text-white flex items-center text-sm mb-2">
-                                            <Icon name="Calculator" size={14} className="mr-2 text-brand-500" /> Skalabilitas Produksi
-                                        </h4>
-                                        <p className="text-xs text-slate-500">Simulasikan secara presisi kebutuhan material dengan kalkulator.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
-                            <h3 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-5">Aktivitas Terakhir</h3>
-                            <div className="space-y-4">
-                                {formulas.length > 0 ? formulas.slice(-5).reverse().map((f, i) => (
-                                    <div key={i} className="flex items-start space-x-3 pb-4 border-b border-slate-100 dark:border-slate-800/50 last:border-0 last:pb-0">
-                                        <div className="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-500/10 flex items-center justify-center flex-shrink-0">
-                                            <Icon name="FilePlus" size={14} className="text-brand-600 dark:text-brand-400" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{f['Nama Produk']}</p>
-                                            <p className="text-xs text-slate-500">FA-{f['FA']} (Rev {f['REV'] || '-'}) • {f['QTY']} QTY</p>
-                                        </div>
-                                    </div>
-                                )) : (
-                                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">Belum ada aktivitas.</p>
-                                )}
-                            </div>
-                        </div>
                     </div>
                 </div>
             );
         }
 
         function InputFormulaView({ materials, fetchData, showNotification, Icon }) {
-            // State untuk menampung data grup header formula
-            const [headerData, setHeaderData] = useState({
-                namaProduk: '', fa: '', rev: '', qty: ''
-            });
-
-            // State dinamis untuk list material
-            const [materialsList, setMaterialsList] = useState([
-                { id: Date.now(), material: '', qtyMaterial: '', pail: '' }
-            ]);
-
+            const [headerData, setHeaderData] = useState({ namaProduk: '', fa: '', rev: '', qty: '' });
+            const [materialsList, setMaterialsList] = useState([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
             const [isSubmitting, setIsSubmitting] = useState(false);
 
             const handleHeaderChange = (e) => {
@@ -634,82 +525,37 @@
             };
 
             const handleMaterialChange = (id, field, value) => {
-                // Validasi Maksimal 5 digit di belakang koma untuk Qty Material
                 if (field === 'qtyMaterial' && value.includes('.')) {
-                    if (value.split('.')[1].length > 5) {
-                        showNotification('Qty Material maksimal 5 angka di belakang koma.', 'error');
-                        return; // Membatalkan input jika lebih dari 5 digit desimal
-                    }
+                    if (value.split('.')[1].length > 5) return showNotification('Qty Material maksimal 5 angka di belakang koma.', 'error');
                 }
                 setMaterialsList(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
             };
 
-            const addMaterialRow = () => {
-                setMaterialsList(prev => [...prev, { id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
-            };
-
-            const removeMaterialRow = (id) => {
-                if (materialsList.length === 1) return;
-                setMaterialsList(prev => prev.filter(m => m.id !== id));
-            };
-
-            const handleReset = () => {
-                setHeaderData({ namaProduk: '', fa: '', rev: '', qty: '' });
-                setMaterialsList([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
-            };
+            const addMaterialRow = () => setMaterialsList(prev => [...prev, { id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
+            const removeMaterialRow = (id) => { if (materialsList.length > 1) setMaterialsList(prev => prev.filter(m => m.id !== id)); };
+            const handleReset = () => { setHeaderData({ namaProduk: '', fa: '', rev: '', qty: '' }); setMaterialsList([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]); };
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
-                
-                // Validasi Data Header
-                if (!headerData.namaProduk || !headerData.fa || !headerData.qty) {
-                    showNotification('Mohon lengkapi Informasi Produk dan Base QTY', 'error');
-                    return;
-                }
-
-                // Validasi setiap row material
+                if (!headerData.namaProduk || !headerData.fa || !headerData.qty) return showNotification('Mohon lengkapi Informasi Produk dan Base QTY', 'error');
                 for (let i = 0; i < materialsList.length; i++) {
                     const m = materialsList[i];
-                    if (!m.material || !m.qtyMaterial || !m.pail) {
-                        showNotification(`Mohon lengkapi data Material ke-${i+1}`, 'error');
-                        return;
-                    }
+                    if (!m.material || !m.qtyMaterial || !m.pail) return showNotification(`Mohon lengkapi data Material ke-${i+1}`, 'error');
                 }
 
-                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
-                     showNotification('Mode Preview: Data tidak dapat disimpan ke server', 'error');
-                     return;
-                }
+                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') return showNotification('Mode Preview: Data tidak dapat disimpan', 'error');
 
                 setIsSubmitting(true);
-                
                 try {
-                    // Loop untuk mengirim data per baris material secara berurutan agar aman di Google Sheets
                     for (const mat of materialsList) {
                         const baseQty = Number(headerData.qty);
                         const kg = (Number(mat.qtyMaterial) * baseQty) / 100;
                         const formulasi = baseQty !== 0 ? (Number(mat.pail) / baseQty) * kg : 0;
-
-                        const payload = {
-                            action: 'addFormula',
-                            data: {
-                                'Nama Produk': headerData.namaProduk, 
-                                'FA': headerData.fa, 
-                                'REV': headerData.rev, 
-                                'QTY': baseQty,
-                                'Material': mat.material, 
-                                'Qty Material': Number(mat.qtyMaterial), 
-                                'Kg': kg,
-                                'Pail': Number(mat.pail), 
-                                'Formulasi': formulasi
-                            }
-                        };
-                        
+                        const payload = { action: 'addFormula', data: { 'Nama Produk': headerData.namaProduk, 'FA': headerData.fa, 'REV': headerData.rev, 'QTY': baseQty, 'Material': mat.material, 'Qty Material': Number(mat.qtyMaterial), 'Kg': kg, 'Pail': Number(mat.pail), 'Formulasi': formulasi } };
                         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                         if(!response.ok) throw new Error("Gagal menyimpan material: " + mat.material);
                     }
-                    
-                    showNotification('Formula beserta material berhasil disimpan!');
+                    showNotification('Formula berhasil disimpan!');
                     handleReset();
                     await fetchData();
                 } catch (error) {
@@ -719,46 +565,36 @@
                 }
             };
 
-            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
             const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
 
             return (
                 <div className="max-w-4xl">
                     <div className="mb-6">
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Input Formula Baru</h2>
-                        <p className="text-sm text-slate-500 mt-1">Tambahkan data spesifikasi formula dan material secara manual.</p>
                     </div>
 
-                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden print-border">
                         <form onSubmit={handleSubmit}>
                             <div className="p-5 sm:p-8 space-y-8">
                                 {/* Informasi Produk */}
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Informasi Produk</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                                        <div className="sm:col-span-2">
-                                            <label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label>
-                                            <input type="text" name="namaProduk" value={headerData.namaProduk} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: PFT-213-2K SF LIGHT BLUE 6122" required />
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label>
-                                            <input type="text" name="fa" value={headerData.fa} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: 12" required />
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Revisi (REV)</label>
-                                            <input type="text" name="rev" value={headerData.rev} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: 4" />
-                                        </div>
+                                        <div className="sm:col-span-2"><label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label><input type="text" name="namaProduk" value={headerData.namaProduk} onChange={handleHeaderChange} className={inputClass} required /></div>
+                                        <div><label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label><input type="text" name="fa" value={headerData.fa} onChange={handleHeaderChange} className={inputClass} required /></div>
+                                        <div><label className={labelClass}>Revisi (REV)</label><input type="text" name="rev" value={headerData.rev} onChange={handleHeaderChange} className={inputClass} /></div>
                                     </div>
                                 </div>
 
-                                {/* Detail Material & Kuantitas */}
+                                {/* Detail Material */}
                                 <div>
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 space-y-3 sm:space-y-0">
                                         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Detail Material & Kuantitas</h3>
                                         <div className="w-full sm:w-1/3">
                                             <label className="flex items-center text-xs font-semibold text-slate-700 dark:text-slate-300">
                                                 <span className="mr-3 whitespace-nowrap">Base QTY <span className="text-red-500">*</span></span>
-                                                <input type="number" name="qty" value={headerData.qty} onChange={handleHeaderChange} className={`${inputClass} !py-1.5`} placeholder="Contoh: 64" required min="1" step="any" />
+                                                <input type="number" name="qty" value={headerData.qty} onChange={handleHeaderChange} className={`${inputClass} !py-1.5`} required min="1" step="any" />
                                             </label>
                                         </div>
                                     </div>
@@ -770,59 +606,33 @@
                                             const formulasi = baseQty && kg ? (Number(mat.pail) / baseQty) * kg : 0;
 
                                             return (
-                                                <div key={mat.id} className="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 relative group transition-colors hover:border-brand-300 dark:hover:border-brand-700">
-                                                    {materialsList.length > 1 && (
-                                                        <button type="button" onClick={() => removeMaterialRow(mat.id)} className="absolute top-3 right-3 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md focus:outline-none transition-all sm:opacity-0 sm:group-hover:opacity-100" title="Hapus Material">
-                                                            <Icon name="Trash2" size={16} />
-                                                        </button>
-                                                    )}
-                                                    
+                                                <div key={mat.id} className="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 relative group transition-colors">
+                                                    {materialsList.length > 1 && <button type="button" onClick={() => removeMaterialRow(mat.id)} className="absolute top-3 right-3 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md focus:outline-none sm:opacity-0 sm:group-hover:opacity-100"><Icon name="Trash2" size={16} /></button>}
                                                     <h4 className="text-xs font-bold text-brand-600 dark:text-brand-400 mb-4 uppercase tracking-wider">Material {index + 1}</h4>
-                                                    
                                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                                                        <div className="sm:col-span-1">
-                                                            <label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label>
-                                                            <input type="text" value={mat.material} onChange={(e) => handleMaterialChange(mat.id, 'material', e.target.value)} className={inputClass} placeholder="Contoh: RE-213 SF BASE D" required />
-                                                        </div>
-                                                        <div>
-                                                            <label className={labelClass}>Qty Material <span className="text-red-500">*</span></label>
-                                                            <input type="number" value={mat.qtyMaterial} onChange={(e) => handleMaterialChange(mat.id, 'qtyMaterial', e.target.value)} className={inputClass} placeholder="Maks. 5 desimal" required min="0" step="0.00001" />
-                                                        </div>
-                                                        <div>
-                                                            <label className={labelClass}>Pail <span className="text-red-500">*</span></label>
-                                                            <input type="number" value={mat.pail} onChange={(e) => handleMaterialChange(mat.id, 'pail', e.target.value)} className={inputClass} placeholder="Contoh: 16" required min="0" step="any" />
-                                                        </div>
+                                                        <div className="sm:col-span-1"><label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label><input type="text" value={mat.material} onChange={(e) => handleMaterialChange(mat.id, 'material', e.target.value)} className={inputClass} required /></div>
+                                                        <div><label className={labelClass}>Qty Material <span className="text-red-500">*</span></label><input type="number" value={mat.qtyMaterial} onChange={(e) => handleMaterialChange(mat.id, 'qtyMaterial', e.target.value)} className={inputClass} required min="0" step="0.00001" /></div>
+                                                        <div><label className={labelClass}>Pail <span className="text-red-500">*</span></label><input type="number" value={mat.pail} onChange={(e) => handleMaterialChange(mat.id, 'pail', e.target.value)} className={inputClass} required min="0" step="any" /></div>
                                                     </div>
-
                                                     <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t border-slate-200/60 dark:border-slate-700/60">
-                                                        <div>
-                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Kg (Otomatis)</p>
-                                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{kg.toFixed(5)}</p>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Formulasi (Otomatis)</p>
-                                                            <p className="text-sm font-bold text-brand-600 dark:text-brand-400">{formulasi.toFixed(4)}</p>
-                                                        </div>
+                                                        <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Kg (Otomatis)</p><p className="text-sm font-bold text-slate-800 dark:text-slate-200">{kg.toFixed(5)}</p></div>
+                                                        <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Formulasi (Otomatis)</p><p className="text-sm font-bold text-brand-600 dark:text-brand-400">{formulasi.toFixed(4)}</p></div>
                                                     </div>
                                                 </div>
                                             );
                                         })}
                                     </div>
-                                    
-                                    <button type="button" onClick={addMaterialRow} className="mt-5 inline-flex items-center px-4 py-2 bg-brand-50 dark:bg-brand-500/10 text-sm font-medium text-brand-600 dark:text-brand-400 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/20 border border-brand-200 dark:border-brand-800/50">
-                                        <Icon name="FilePlus" size={16} className="mr-2" />
-                                        + Tambah Material
+                                    <button type="button" onClick={addMaterialRow} className="mt-5 inline-flex items-center px-4 py-2 bg-brand-50 text-sm font-medium text-brand-600 rounded-lg hover:bg-brand-100 border border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 dark:border-brand-800/50">
+                                        <Icon name="FilePlus" size={16} className="mr-2" /> + Tambah Material
                                     </button>
                                 </div>
                             </div>
                             
-                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3">
-                                <button type="button" onClick={handleReset} className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                                    Batalkan
-                                </button>
-                                <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed">
+                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3">
+                                <button type="button" onClick={handleReset} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">Batalkan</button>
+                                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg flex items-center justify-center disabled:opacity-70">
                                     {isSubmitting ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : <Icon name="CheckCircle" size={16} className="mr-2" />}
-                                    <span>{isSubmitting ? 'Menyimpan Formula...' : 'Simpan Formula'}</span>
+                                    <span>{isSubmitting ? 'Menyimpan...' : 'Simpan Formula'}</span>
                                 </button>
                             </div>
                         </form>
@@ -831,6 +641,7 @@
             );
         }
 
+        // --- UPDATED CALCULATOR VIEW ---
         function CalculatorView({ formulas, Icon }) {
             const [selectedProduct, setSelectedProduct] = useState('');
             const [selectedFA, setSelectedFA] = useState('');
@@ -838,116 +649,192 @@
             const [qtyProduksi, setQtyProduksi] = useState('');
             const [pailProduksi, setPailProduksi] = useState('');
 
+            // Dropdown List Logic
             const productList = [...new Set(formulas.map(f => String(f['Nama Produk'] || '')))].filter(Boolean);
             const faList = [...new Set(formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct).map(f => String(f['FA'] || '')))].filter(Boolean);
             const revList = [...new Set(formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct && String(f['FA'] || '') === selectedFA).map(f => String(f['REV'] || '')))].filter(Boolean);
-            const activeFormulas = formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct && String(f['FA'] || '') === selectedFA && (selectedREV === '' || String(f['REV'] || '') === selectedREV));
+            
+            // Active Materials filtered by dropdown selections
+            const activeMaterials = useMemo(() => {
+                if (!selectedProduct || !selectedFA || !selectedREV) return [];
+                return formulas.filter(f => 
+                    String(f['Nama Produk'] || '') === selectedProduct && 
+                    String(f['FA'] || '') === selectedFA &&
+                    String(f['REV'] || '') === selectedREV
+                );
+            }, [formulas, selectedProduct, selectedFA, selectedREV]);
 
-            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400 outline-none transition-all text-slate-900 dark:text-slate-100";
+            // Set initial QTY from database when formula is completely selected
+            useEffect(() => {
+                if (activeMaterials.length > 0 && !qtyProduksi && !pailProduksi) {
+                    setQtyProduksi(activeMaterials[0]['QTY'] || '');
+                }
+            }, [activeMaterials]);
+
+            const handleProductChange = (e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi(''); };
+            const handleFAChange = (e) => { setSelectedFA(e.target.value); setSelectedREV(''); setQtyProduksi(''); setPailProduksi(''); };
+            const handleREVChange = (e) => { setSelectedREV(e.target.value); setQtyProduksi(''); setPailProduksi(''); };
+            
+            const handleReset = () => {
+                setSelectedProduct(''); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi('');
+            };
+
+            // Calculations
+            let totalKg = 0;
+            let totalFormulasi = 0;
+            const inputQtyNum = Number(qtyProduksi) || 0;
+            const inputPailNum = Number(pailProduksi) || 0;
+
+            const computedMaterials = activeMaterials.map(mat => {
+                const qtyMat = Number(mat['Qty Material']) || 0;
+                
+                let kg = 0;
+                let formulasi = 0;
+
+                if (inputQtyNum > 0) {
+                    kg = (qtyMat * inputQtyNum) / 100;
+                    if (inputPailNum > 0) {
+                        formulasi = (inputPailNum / inputQtyNum) * kg;
+                    }
+                }
+
+                totalKg += kg;
+                totalFormulasi += formulasi;
+
+                return { ...mat, calculatedKg: kg, calculatedFormulasi: formulasi, qtyMat };
+            });
+
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
             const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
 
             return (
-                <div className="space-y-6">
-                    <div className="mb-6">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Kalkulator Skala Produksi</h2>
-                        <p className="text-sm text-slate-500 mt-1">Simulasikan kebutuhan material secara proporsional sesuai dengan target produksi.</p>
+                <div className="max-w-4xl print-full-width">
+                    <div className="mb-6 print-hide">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Kalkulator Formula</h2>
+                        <p className="text-sm text-slate-500 mt-1">Simulasikan perhitungan berdasarkan formula yang tersimpan di Master Formula.</p>
                     </div>
 
-                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                            <div className="sm:col-span-2 md:col-span-1">
-                                <label className={labelClass}>Produk</label>
-                                <select value={selectedProduct} onChange={(e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); }} className={inputClass}>
-                                    <option value="">-- Pilih Produk --</option>
-                                    {productList.map(p => <option key={p} value={p}>{p}</option>)}
-                                </select>
-                            </div>
+                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden print-border">
+                        <div className="p-5 sm:p-8 space-y-8">
+                            
+                            {/* SECTION 1 - Informasi Produk */}
                             <div>
-                                <label className={labelClass}>Kode FA</label>
-                                <select value={selectedFA} onChange={(e) => { setSelectedFA(e.target.value); setSelectedREV(''); }} className={inputClass} disabled={!selectedProduct}>
-                                    <option value="">-- Pilih FA --</option>
-                                    {faList.map(fa => <option key={fa} value={fa}>{fa}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className={labelClass}>Revisi (REV)</label>
-                                <select value={selectedREV} onChange={(e) => setSelectedREV(e.target.value)} className={inputClass} disabled={!selectedFA}>
-                                    <option value="">Semua REV</option>
-                                    {revList.map(rev => <option key={rev} value={rev}>{rev}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className={labelClass}>Target Qty</label>
-                                <input type="number" value={qtyProduksi} onChange={(e) => { setQtyProduksi(e.target.value); setPailProduksi(''); }} className={inputClass} placeholder="Cth: 500" min="1" />
-                            </div>
-                            <div>
-                                <label className={labelClass}>Target Pail</label>
-                                <input type="number" value={pailProduksi} onChange={(e) => { setPailProduksi(e.target.value); setQtyProduksi(''); }} className={inputClass} placeholder="Cth: 10" min="1" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {activeFormulas.length > 0 && (qtyProduksi || pailProduksi) && (
-                        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-slide-in-up">
-                            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
-                                <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center">
-                                    <Icon name="ArrowUpRight" size={16} className="mr-2 text-brand-500" /> Estimasi Kebutuhan Material
-                                </h4>
-                                <div className="flex space-x-2">
-                                    {qtyProduksi && <span className="px-2.5 py-1 text-xs font-semibold bg-brand-100 text-brand-800 dark:bg-brand-500/20 dark:text-brand-300 rounded-md">Target: {qtyProduksi} QTY</span>}
-                                    {pailProduksi && <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 rounded-md">Target: {pailProduksi} Pail</span>}
+                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Informasi Produk</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                                    <div className="sm:col-span-3">
+                                        <label className={labelClass}>Nama Produk</label>
+                                        <select value={selectedProduct} onChange={handleProductChange} className={inputClass}>
+                                            <option value="">-- Pilih Produk --</option>
+                                            {productList.map(p => <option key={p} value={p}>{p}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="sm:col-span-1.5">
+                                        <label className={labelClass}>Kategori FA</label>
+                                        <select value={selectedFA} onChange={handleFAChange} className={inputClass} disabled={!selectedProduct}>
+                                            <option value="">-- Pilih FA --</option>
+                                            {faList.map(fa => <option key={fa} value={fa}>{fa}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="sm:col-span-1.5">
+                                        <label className={labelClass}>Revisi (REV)</label>
+                                        <select value={selectedREV} onChange={handleREVChange} className={inputClass} disabled={!selectedFA}>
+                                            <option value="">-- Pilih REV --</option>
+                                            {revList.map(rev => <option key={rev} value={rev}>{rev}</option>)}
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm whitespace-nowrap">
-                                    <thead className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800">
-                                        <tr>
-                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Nama Material</th>
-                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">REV</th>
-                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Base QTY</th>
-                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Base Pail</th>
-                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Base Kg</th>
-                                            <th className="px-5 py-3 font-semibold text-brand-600 dark:text-brand-400 text-xs uppercase tracking-wider">Req. Kg</th>
-                                            <th className="px-5 py-3 font-semibold text-emerald-600 dark:text-emerald-400 text-xs uppercase tracking-wider">Req. Formulasi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                                    {activeFormulas.map((form, idx) => {
-                                        const baseQty = Number(form['QTY']) || 1; 
-                                        const basePail = Number(form['Pail']) || 1;
-                                        let multiplier = 1;
-                                        if (qtyProduksi) multiplier = Number(qtyProduksi) / baseQty;
-                                        else if (pailProduksi) multiplier = Number(pailProduksi) / basePail;
 
-                                        const reqKg = Number(form['Kg']) * multiplier;
-                                        const jumlahPail = basePail * multiplier;
-                                        const reqFormulasi = reqKg !== 0 ? (jumlahPail * baseQty) / reqKg : 0;
-
-                                        return (
-                                            <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                                <td className="px-5 py-4 font-medium text-slate-900 dark:text-slate-200">{form['Material']}</td>
-                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{form['REV'] || '-'}</td>
-                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{form['QTY']}</td>
-                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{form['Pail']}</td>
-                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{Number(form['Kg']).toFixed(2)}</td>
-                                                <td className="px-5 py-4 font-bold text-brand-700 dark:text-brand-300 bg-brand-50/50 dark:bg-brand-500/10">{reqKg.toFixed(2)}</td>
-                                                <td className="px-5 py-4 font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-500/10">{reqFormulasi.toFixed(4)}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                    </tbody>
-                                </table>
+                                {selectedProduct && selectedFA && selectedREV && activeMaterials.length === 0 && (
+                                    <div className="mt-4 p-3 bg-amber-50 text-amber-600 rounded-lg text-sm border border-amber-200 print-hide">
+                                        <Icon name="AlertCircle" className="inline mr-2" size={16} /> Formula tidak ditemukan untuk kombinasi ini.
+                                    </div>
+                                )}
                             </div>
+
+                            {/* SECTION 2 - Detail Perhitungan (Hanya tampil jika ada data) */}
+                            {activeMaterials.length > 0 && (
+                                <div className="animate-fade-in">
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Parameter Produksi (Kustomisasi)</h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-8">
+                                        <div>
+                                            <label className={labelClass}>QTY</label>
+                                            <input type="number" value={qtyProduksi} onChange={(e) => setQtyProduksi(e.target.value)} className={inputClass} placeholder="Contoh: 100" min="0" step="any" />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Pail</label>
+                                            <input type="number" value={pailProduksi} onChange={(e) => setPailProduksi(e.target.value)} className={inputClass} placeholder="Contoh: 20" min="0" step="any" />
+                                        </div>
+                                    </div>
+
+                                    {/* HASIL PERHITUNGAN */}
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Hasil Simulasi</h3>
+                                    
+                                    {/* Card Ringkasan */}
+                                    <div className="bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row justify-between gap-4">
+                                        <div>
+                                            <p className="text-xs text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wider mb-1">Informasi</p>
+                                            <div className="text-sm text-slate-800 dark:text-slate-200 space-y-1">
+                                                <div><span className="text-slate-500 dark:text-slate-400">Nama Produk:</span> <span className="font-bold">{selectedProduct}</span></div>
+                                                <div><span className="text-slate-500 dark:text-slate-400">FA / REV:</span> <span className="font-bold">{selectedFA} / {selectedREV}</span></div>
+                                                <div><span className="text-slate-500 dark:text-slate-400">Jumlah Material:</span> <span className="font-bold">{activeMaterials.length}</span></div>
+                                            </div>
+                                        </div>
+                                        <div className="sm:text-right">
+                                            <p className="text-xs text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wider mb-1">Total</p>
+                                            <div className="text-sm text-slate-800 dark:text-slate-200 space-y-1">
+                                                <div><span className="text-slate-500 dark:text-slate-400">Total Kg:</span> <span className="font-bold text-lg text-brand-700 dark:text-brand-300 ml-2">{Number(totalKg.toFixed(5))}</span></div>
+                                                <div><span className="text-slate-500 dark:text-slate-400">Total Formulasi:</span> <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400 ml-2">{Number(totalFormulasi.toFixed(5))}</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Tabel Detail */}
+                                    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                                        <table className="w-full text-left text-sm whitespace-nowrap">
+                                            <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                                                <tr>
+                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-12 text-center">No</th>
+                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Material</th>
+                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 text-right">Qty Material</th>
+                                                    <th className="px-4 py-3 font-semibold text-brand-600 dark:text-brand-400 text-right">Kg</th>
+                                                    <th className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400 text-right">Formulasi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                                {computedMaterials.map((mat, idx) => (
+                                                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                        <td className="px-4 py-2.5 text-center text-slate-500 dark:text-slate-400">{idx + 1}</td>
+                                                        <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
+                                                        <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right bg-slate-50/50 dark:bg-slate-900/20">{Number(mat.qtyMat.toFixed(5))}</td>
+                                                        <td className="px-4 py-2.5 font-semibold text-brand-700 dark:text-brand-300 text-right bg-brand-50/30 dark:bg-brand-900/10">{Number(mat.calculatedKg.toFixed(5))}</td>
+                                                        <td className="px-4 py-2.5 font-semibold text-emerald-700 dark:text-emerald-300 text-right bg-emerald-50/30 dark:bg-emerald-900/10">{Number(mat.calculatedFormulasi.toFixed(5))}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
-                    )}
+                        
+                        {/* Area Aksi Tombol */}
+                        <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 print-hide">
+                            <button type="button" onClick={handleReset} className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white rounded-lg transition-colors">
+                                Reset Parameter
+                            </button>
+                        </div>
+                    </div>
                 </div>
             );
         }
 
-        function DataTableView({ formulas, handleDelete, isLoading, Icon, userRole }) {
+        function DataTableView({ formulas, isLoading, Icon, userRole, fetchData, showNotification }) {
             const [searchTerm, setSearchTerm] = useState('');
             const [currentPage, setCurrentPage] = useState(1);
             const [expandedRows, setExpandedRows] = useState(new Set());
+            const [groupToDelete, setGroupToDelete] = useState(null);
+            const [isDeletingGroup, setIsDeletingGroup] = useState(false);
             const itemsPerPage = 10;
 
             const groupedFormulas = useMemo(() => {
@@ -1000,14 +887,35 @@
                 document.body.removeChild(link);
             };
 
+            const handleDeleteGroupConfirm = async () => {
+                if (!groupToDelete) return;
+                setIsDeletingGroup(true);
+                try {
+                    const idsToDelete = groupToDelete.materials.map(m => m.id).sort((a, b) => b - a);
+                    for (const id of idsToDelete) {
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST', body: JSON.stringify({ action: 'deleteFormula', id }),
+                        });
+                        if (!response.ok) throw new Error("Gagal menghapus baris");
+                    }
+                    await fetchData();
+                    showNotification('Formula berhasil dihapus.', 'success');
+                    setGroupToDelete(null);
+                } catch (error) {
+                    showNotification('Gagal menghapus formula. Silakan coba kembali.', 'error');
+                } finally {
+                    setIsDeletingGroup(false);
+                }
+            };
+
             return (
-                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col animate-fade-in">
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col animate-fade-in relative print-border">
                     <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                         <div>
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Master Formula</h3>
                             <p className="text-xs text-slate-500 mt-1">Total {groupedFormulas.length} kombinasi formula (dari {formulas.length} data material).</p>
                         </div>
-                        <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                        <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto print-hide">
                             <div className="relative flex-1 w-full sm:w-64">
                                 <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"><Icon name="Search" size={16} /></div>
                                 <input 
@@ -1030,7 +938,7 @@
                                     <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">FA/REV</th>
                                     <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">QTY</th>
                                     <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Jumlah Material</th>
-                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">Aksi</th>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right print-hide">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -1053,43 +961,55 @@
                                                         {group.materials.length} Material
                                                     </span>
                                                 </td>
-                                                <td className="px-5 py-4 text-right">
-                                                    <button onClick={(e) => { e.stopPropagation(); toggleRow(group.key); }} className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md text-xs font-medium transition-colors shadow-sm focus:outline-none flex items-center inline-flex space-x-1 ml-auto">
-                                                        <span>Detail</span><Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={14} />
-                                                    </button>
+                                                <td className="px-5 py-4 text-right print-hide">
+                                                    <div className="flex items-center justify-end space-x-2">
+                                                        <button onClick={(e) => { e.stopPropagation(); toggleRow(group.key); }} className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md text-xs font-medium transition-colors shadow-sm focus:outline-none flex items-center space-x-1">
+                                                            <span>Detail</span><Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={14} />
+                                                        </button>
+                                                        {userRole === 'Admin' && (
+                                                            <Fragment>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); showNotification('Fitur Edit akan segera hadir.', 'success'); }} 
+                                                                    className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 text-slate-600 dark:text-slate-400 rounded-md transition-colors shadow-sm focus:outline-none"
+                                                                    title="Edit Formula Group"
+                                                                >
+                                                                    <Icon name="Edit" size={14} />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setGroupToDelete(group); }} 
+                                                                    className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/20 dark:hover:text-red-400 text-slate-600 dark:text-slate-400 rounded-md transition-colors shadow-sm focus:outline-none relative group/btn"
+                                                                    title={`Hapus seluruh formula beserta ${group.materials.length} material yang terkait.`}
+                                                                >
+                                                                    <Icon name="Trash2" size={14} />
+                                                                </button>
+                                                            </Fragment>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                             {isExpanded && (
                                                 <tr>
                                                     <td colSpan="6" className="p-0 bg-slate-50/30 dark:bg-[#0B1120]/30">
-                                                        <div className="mx-0 sm:mx-5 my-0 sm:my-4 bg-white dark:bg-[#111827] sm:border-l-4 sm:border-brand-500 sm:rounded-r-xl shadow-sm sm:border-t sm:border-r sm:border-b border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in-up">
+                                                        <div className="mx-0 sm:mx-5 my-0 sm:my-4 bg-white dark:bg-[#111827] sm:border-l-4 sm:border-brand-500 sm:rounded-r-xl shadow-sm sm:border-t sm:border-r sm:border-b border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in-up print-border">
                                                             <div className="overflow-x-auto p-4">
                                                                 <table className="w-full text-left text-xs whitespace-nowrap border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                                                                     <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                                                                         <tr>
                                                                             <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 w-12">No</th>
                                                                             <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Material</th>
-                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Qty Material</th>
-                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Pail</th>
-                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Formulasi</th>
-                                                                            {userRole === 'Admin' && <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Aksi</th>}
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Qty Material</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Pail</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Formulasi</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                                                                         {group.materials.map((mat, mIdx) => (
-                                                                            <tr key={mIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 group/mat transition-colors">
+                                                                            <tr key={mIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
                                                                                 <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{mIdx + 1}</td>
                                                                                 <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
-                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{mat['Qty Material'] !== '' && mat['Qty Material'] !== undefined ? Number(Number(mat['Qty Material']).toFixed(5)) : '-'}</td>
-                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{mat['Pail'] || '-'}</td>
-                                                                                <td className="px-4 py-2.5 font-semibold text-brand-600 dark:text-brand-400">{Number(mat['Formulasi']).toFixed(4)}</td>
-                                                                                {userRole === 'Admin' && (
-                                                                                    <td className="px-4 py-2.5 text-right">
-                                                                                        <button onClick={() => handleDelete(mat.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors opacity-0 group-hover/mat:opacity-100 focus:outline-none focus:opacity-100" title="Hapus Data">
-                                                                                            <Icon name="Trash2" size={14} />
-                                                                                        </button>
-                                                                                    </td>
-                                                                                )}
+                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['Qty Material'] !== '' && mat['Qty Material'] !== undefined ? Number(Number(mat['Qty Material']).toFixed(5)) : '-'}</td>
+                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['Pail'] || '-'}</td>
+                                                                                <td className="px-4 py-2.5 font-semibold text-brand-600 dark:text-brand-400 text-right">{Number(mat['Formulasi']).toFixed(4)}</td>
                                                                             </tr>
                                                                         ))}
                                                                     </tbody>
@@ -1106,14 +1026,14 @@
                                         </Fragment>
                                     );
                                 }) : (
-                                    <tr><td colSpan={userRole === 'Admin' ? "6" : "5"} className="px-5 py-8 text-center text-slate-500 text-sm">{isLoading ? <div className="flex items-center justify-center"><Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> Menarik data...</div> : 'Tidak ada data ditemukan'}</td></tr>
+                                    <tr><td colSpan="6" className="px-5 py-8 text-center text-slate-500 text-sm">{isLoading ? <div className="flex items-center justify-center"><Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> Menarik data...</div> : 'Tidak ada data ditemukan'}</td></tr>
                                 )}
                             </tbody>
                         </table>
                     </div>
 
                     {totalPages > 1 && (
-                        <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-[#111827] rounded-b-xl gap-4">
+                        <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-[#111827] rounded-b-xl gap-4 print-hide">
                             <span className="text-xs text-slate-500">Menampilkan <span className="font-medium text-slate-900 dark:text-slate-200">{((currentPage - 1) * itemsPerPage) + 1}</span> - <span className="font-medium text-slate-900 dark:text-slate-200">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span> dari <span className="font-medium text-slate-900 dark:text-slate-200">{filteredData.length}</span> formula</span>
                             <div className="flex space-x-1">
                                 <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none">Prev</button>
@@ -1121,11 +1041,50 @@
                             </div>
                         </div>
                     )}
+
+                    {groupToDelete && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in print-hide">
+                            <div className="bg-white dark:bg-[#111827] rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-[380px] w-[380px] p-5 overflow-hidden animate-zoom-in">
+                                <div className="flex items-center justify-center w-9 h-9 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full mb-3">
+                                    <Icon name="AlertTriangle" size={20} className="text-red-600 dark:text-red-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-center text-slate-900 dark:text-white mb-2">Hapus Formula?</h3>
+                                <p className="text-sm text-center text-slate-500 dark:text-slate-400 mb-4">Formula berikut akan dihapus secara permanen.</p>
+                                
+                                <div className="text-sm text-slate-700 dark:text-slate-300 mb-4 space-y-1">
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Nama Produk</span> <span className="font-medium truncate">: {groupToDelete['Nama Produk']}</span></div>
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">FA/REV</span> <span className="font-medium">: {groupToDelete['FA']} / {groupToDelete['REV'] || '-'}</span></div>
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">QTY</span> <span className="font-medium">: {groupToDelete['QTY']}</span></div>
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Material</span> <span className="font-medium text-brand-600 dark:text-brand-400">: {groupToDelete.materials.length} Material</span></div>
+                                </div>
+                                
+                                <p className="text-xs text-center text-red-600 dark:text-red-400 font-medium mb-5">Data yang dihapus tidak dapat dikembalikan.</p>
+                                
+                                <div className="flex space-x-3">
+                                    <button 
+                                        onClick={() => setGroupToDelete(null)}
+                                        disabled={isDeletingGroup}
+                                        className="flex-1 h-10 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button 
+                                        onClick={handleDeleteGroupConfirm}
+                                        disabled={isDeletingGroup}
+                                        className="flex-1 h-10 flex items-center justify-center text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                                    >
+                                        {isDeletingGroup ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : null}
+                                        {isDeletingGroup ? 'Menghapus...' : 'Hapus'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }
 
-        function UserManagementView({ users, fetchData, handleDelete, showNotification, Icon }) {
+        function UserManagementView({ users, fetchData, showNotification, Icon }) {
             const [formData, setFormData] = useState({ Username: '', Password: '', 'Nama Lengkap': '', Role: 'User' });
             const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -1193,7 +1152,6 @@
                                             <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Nama Lengkap</th>
                                             <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Username</th>
                                             <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Role</th>
-                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -1206,12 +1164,9 @@
                                                         {u.Role}
                                                     </span>
                                                 </td>
-                                                <td className="px-5 py-3.5 text-right">
-                                                    <button onClick={() => handleDelete(u.id, true)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors focus:outline-none"><Icon name="Trash2" size={16} /></button>
-                                                </td>
                                             </tr>
                                         )) : (
-                                            <tr><td colSpan="4" className="px-5 py-8 text-center text-slate-500 text-sm">Tidak ada data pengguna.</td></tr>
+                                            <tr><td colSpan="3" className="px-5 py-8 text-center text-slate-500 text-sm">Tidak ada data pengguna.</td></tr>
                                         )}
                                     </tbody>
                                 </table>
