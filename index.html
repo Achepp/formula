@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaku - Dashboard Formulasi Produk</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Custom Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .animate-slide-in-up { animation: slideInUp 0.5s ease-out forwards; }
+        
+        /* Loader Animation */
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .animate-spin-slow { animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, Fragment } = React;
+
+        // WAJIB: Ganti URL ini dengan URL Web App dari Google Apps Script Anda setelah di-deploy.
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxKKefWfnUcqcna4TEoq-hTVsx_Rh5xvH1k7WoiRhmgKnAwmA81z04YtQXdmvxN_IDu/exec'; 
+
+        // Menggantikan Lucide-React untuk format Single File HTML
+        const Icon = ({ name, size = 18, className = "" }) => {
+            const icons = {
+                Home: <><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></>,
+                FilePlus: <><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" x2="12" y1="18" y2="12"/><line x1="9" x2="15" y1="15" y2="15"/></>,
+                Calculator: <><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></>,
+                Database: <><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></>,
+                Sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></>,
+                Moon: <><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></>,
+                Menu: <><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></>,
+                X: <><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></>,
+                Activity: <><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></>,
+                CheckCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></>,
+                AlertCircle: <><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
+                Loader2: <><path d="M21 12a9 9 0 1 1-6.219-8.56"/></>,
+                TrendingUp: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>,
+                Package: <><line x1="16.5" x2="7.5" y1="9.4" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></>,
+                Layers: <><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>,
+                BarChart3: <><path d="M3 3v18h18"/><rect width="4" height="7" x="7" y="10" rx="1"/><rect width="4" height="12" x="15" y="5" rx="1"/></>,
+                ArrowUpRight: <><path d="M7 7h10v10"/><path d="M7 17 17 7"/></>,
+                Search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
+                Download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></>,
+                Trash2: <><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>,
+                ChevronDown: <><polyline points="6 9 12 15 18 9"/></>,
+                ChevronUp: <><polyline points="18 15 12 9 6 15"/></>
+            };
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {icons[name]}
+                </svg>
+            );
+        };
+
+        function App() {
+            const [activeMenu, setActiveMenu] = useState('dashboard');
+            const [isDarkMode, setIsDarkMode] = useState(false);
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+            
+            const [materials, setMaterials] = useState([]);
+            const [formulas, setFormulas] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+            const [notification, setNotification] = useState(null);
+            const [configError, setConfigError] = useState(false);
+
+            useEffect(() => {
+                if (isDarkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [isDarkMode]);
+
+            useEffect(() => {
+                fetchData();
+            }, []);
+
+            const showNotification = (message, type = 'success') => {
+                setNotification({ message, type });
+                setTimeout(() => setNotification(null), 3000);
+            };
+
+            const fetchData = async () => {
+                setIsLoading(true);
+                setConfigError(false);
+
+                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
+                    setConfigError(true);
+                    setIsLoading(false);
+                    return;
+                }
+
+                try {
+                    const [matRes, formRes] = await Promise.all([
+                        fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getMaterials`),
+                        fetch(`${GOOGLE_APPS_SCRIPT_URL}?action=getFormulas`)
+                    ]);
+                    
+                    if (!matRes.ok || !formRes.ok) {
+                        throw new Error("HTTP error");
+                    }
+
+                    const matData = await matRes.json();
+                    const formData = await formRes.json();
+                    setMaterials(matData);
+                    setFormulas(formData);
+                } catch (error) {
+                    showNotification('Gagal mengambil data dari server. Periksa koneksi atau URL Apps Script.', 'error');
+                    console.error("Fetch Error:", error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            const handleDelete = async (id) => {
+                if(!window.confirm("Apakah Anda yakin ingin menghapus data ini?")) return;
+                
+                setIsLoading(true);
+
+                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
+                    showNotification('Aplikasi belum terhubung ke database', 'error');
+                    setIsLoading(false);
+                    return;
+                }
+
+                try {
+                    await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: 'deleteFormula', id }),
+                    });
+                    await fetchData(); // Refresh data setelah delete
+                    showNotification('Data berhasil dihapus');
+                } catch (error) {
+                    showNotification('Gagal menghapus data', 'error');
+                    setIsLoading(false);
+                }
+            };
+
+            const menus = [
+                { id: 'dashboard', icon: 'Home', label: 'Dashboard' },
+                { id: 'input', icon: 'FilePlus', label: 'Input Formula' },
+                { id: 'kalkulator', icon: 'Calculator', label: 'Kalkulator' },
+                { id: 'data', icon: 'Database', label: 'Database' },
+            ];
+
+            return (
+                <div className={`min-h-screen font-sans ${isDarkMode ? 'dark bg-[#0B1120] text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+                    
+                    {/* Sidebar Overlay */}
+                    {isSidebarOpen && (
+                        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+                    )}
+
+                    {/* Sidebar */}
+                    <aside className={`fixed top-0 left-0 h-full w-64 bg-white dark:bg-[#111827] border-r border-slate-200 dark:border-slate-800 z-50 transform transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 flex flex-col`}>
+                        <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center space-x-2">
+                                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Icon name="Activity" size={18} className="text-white" />
+                                </div>
+                                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Formulaku.</h1>
+                            </div>
+                            <button className="md:hidden ml-auto text-slate-500" onClick={() => setIsSidebarOpen(false)}>
+                                <Icon name="X" size={20} />
+                            </button>
+                        </div>
+                        
+                        <div className="p-4 flex-1 overflow-y-auto">
+                            <p className="px-3 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-2">Main Menu</p>
+                            <nav className="space-y-1">
+                                {menus.map((menu) => (
+                                    <button
+                                        key={menu.id}
+                                        onClick={() => { setActiveMenu(menu.id); setIsSidebarOpen(false); }}
+                                        className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                                            activeMenu === menu.id 
+                                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400' 
+                                                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'
+                                        }`}
+                                    >
+                                        <Icon name={menu.icon} size={18} />
+                                        <span>{menu.label}</span>
+                                    </button>
+                                ))}
+                            </nav>
+                        </div>
+                        
+                        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+                            <div className="flex items-center space-x-3 px-3 py-2">
+                                <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold text-sm">
+                                    AD
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">Admin User</p>
+                                    <p className="text-xs text-slate-500 truncate">admin@formulaku.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* Main Content */}
+                    <main className="md:ml-64 flex flex-col min-h-screen transition-all duration-300">
+                        {/* Header */}
+                        <header className="h-16 sticky top-0 z-30 bg-white/70 dark:bg-[#0B1120]/70 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <button className="md:hidden text-slate-500 hover:text-indigo-600" onClick={() => setIsSidebarOpen(true)}>
+                                    <Icon name="Menu" size={20} />
+                                </button>
+                                <div className="hidden sm:flex items-center text-sm text-slate-500 dark:text-slate-400">
+                                    <span>Workspace</span>
+                                    <span className="mx-2">/</span>
+                                    <span className="font-medium text-slate-900 dark:text-slate-200 capitalize">
+                                        {menus.find(m => m.id === activeMenu)?.label}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <button 
+                                    onClick={() => setIsDarkMode(!isDarkMode)}
+                                    className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                                >
+                                    {isDarkMode ? <Icon name="Sun" size={18} /> : <Icon name="Moon" size={18} />}
+                                </button>
+                            </div>
+                        </header>
+
+                        {/* Notifications */}
+                        {notification && (
+                            <div className="fixed bottom-6 right-6 z-50 animate-slide-in-up">
+                                <div className={`flex items-center space-x-3 px-4 py-3 rounded-xl shadow-lg border ${
+                                    notification.type === 'success' 
+                                        ? 'bg-white dark:bg-[#111827] border-green-200 dark:border-green-900/50 text-slate-800 dark:text-slate-200' 
+                                        : 'bg-white dark:bg-[#111827] border-red-200 dark:border-red-900/50 text-slate-800 dark:text-slate-200'
+                                }`}>
+                                    <Icon name={notification.type === 'success' ? 'CheckCircle' : 'AlertCircle'} size={18} className={notification.type === 'success' ? "text-green-500" : "text-red-500"} />
+                                    <span className="text-sm font-medium">{notification.message}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Config Error Message */}
+                        {configError && (
+                            <div className="p-4 mx-6 mt-6 bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800/50 rounded-xl flex items-start space-x-3">
+                                <Icon name="AlertCircle" size={20} className="text-red-500 mt-0.5" />
+                                <div>
+                                    <h4 className="text-sm font-semibold text-red-800 dark:text-red-300">Konfigurasi Dibutuhkan</h4>
+                                    <p className="text-xs text-red-600 dark:text-red-400 mt-1">Aplikasi belum terhubung ke Google Sheets. Silakan buka file <code>index.html</code> dan ganti nilai <code>GOOGLE_APPS_SCRIPT_URL</code> dengan URL Web App Anda.</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Body Container */}
+                        <div className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto w-full">
+                            {isLoading ? (
+                                <div className="flex flex-col items-center justify-center h-64 animate-fade-in">
+                                    <Icon name="Loader2" size={32} className="animate-spin-slow text-indigo-600 mb-4" />
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Sinkronisasi data database...</p>
+                                </div>
+                            ) : configError ? null : ( // Hide content if config error
+                                <div className="animate-slide-in-up">
+                                    {activeMenu === 'dashboard' && <DashboardView formulas={formulas} materials={materials} Icon={Icon} />}
+                                    {activeMenu === 'input' && <InputFormulaView materials={materials} fetchData={fetchData} showNotification={showNotification} Icon={Icon} />}
+                                    {activeMenu === 'kalkulator' && <CalculatorView formulas={formulas} Icon={Icon} />}
+                                    {activeMenu === 'data' && <DataTableView formulas={formulas} handleDelete={handleDelete} isLoading={isLoading} Icon={Icon} />}
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        function DashboardView({ formulas, materials, Icon }) {
+            const totalProduk = new Set(formulas.map(f => f['Nama Produk'])).size;
+            const totalMaterial = materials.length;
+            const totalFormula = formulas.length;
+            const totalProduksi = formulas.reduce((acc, curr) => acc + (Number(curr.Kg) || 0), 0);
+
+            const statCards = [
+                { title: 'Total Produk', value: totalProduk, icon: 'Package', trend: 'Aktif di Database', color: 'text-indigo-600 dark:text-indigo-400' },
+                { title: 'Total Formula', value: totalFormula, icon: 'Layers', trend: '+Baru ditambahkan', color: 'text-blue-600 dark:text-blue-400' },
+                { title: 'Material Aktif', value: totalMaterial, icon: 'Database', trend: 'Sinkron dengan Sheets', color: 'text-emerald-600 dark:text-emerald-400' },
+                { title: 'Estimasi Produksi (Kg)', value: totalProduksi.toFixed(1), icon: 'BarChart3', trend: 'Total akumulatif Kg', color: 'text-amber-600 dark:text-amber-400' },
+            ];
+
+            return (
+                <div className="space-y-6">
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Overview</h2>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Pantau statistik formulasi dan penggunaan material Anda.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {statCards.map((stat, idx) => (
+                            <div key={idx} className="bg-white dark:bg-[#111827] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.title}</h3>
+                                    <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                                        <Icon name={stat.icon} size={20} className={stat.color} />
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{stat.value}</div>
+                                    <div className="flex items-center text-xs text-slate-500 dark:text-slate-500 font-medium">
+                                        <Icon name="TrendingUp" size={12} className="mr-1 text-emerald-500" />
+                                        {stat.trend}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                        <div className="lg:col-span-2 bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                            <div className="flex items-center space-x-2 mb-6">
+                                <div className="w-1.5 h-6 bg-indigo-500 rounded-full"></div>
+                                <h3 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Sistem Formulasi Terintegrasi</h3>
+                            </div>
+                            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed">
+                                <p className="mb-4">Aplikasi ini dirancang dengan antarmuka yang bersih dan fokus pada kecepatan. Data Anda terhubung langsung dengan backend Google Sheets API, memastikan setiap perubahan pada formula langsung tersimpan dengan aman tanpa perlu refresh.</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                                    <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
+                                        <h4 className="font-semibold text-slate-900 dark:text-white flex items-center text-sm mb-2">
+                                            <Icon name="FilePlus" size={14} className="mr-2 text-indigo-500" /> Input Cepat
+                                        </h4>
+                                        <p className="text-xs text-slate-500">Kalkulasi Kg & Formulasi otomatis saat Anda memilih material.</p>
+                                    </div>
+                                    <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-700/50">
+                                        <h4 className="font-semibold text-slate-900 dark:text-white flex items-center text-sm mb-2">
+                                            <Icon name="Calculator" size={14} className="mr-2 text-indigo-500" /> Skalabilitas Produksi
+                                        </h4>
+                                        <p className="text-xs text-slate-500">Simulasikan secara presisi kebutuhan material dengan kalkulator.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                            <h3 className="text-xs font-semibold text-slate-900 dark:text-white uppercase tracking-wider mb-5">Aktivitas Terakhir</h3>
+                            <div className="space-y-4">
+                                {formulas.length > 0 ? formulas.slice(-5).reverse().map((f, i) => (
+                                    <div key={i} className="flex items-start space-x-3 pb-4 border-b border-slate-100 dark:border-slate-800/50 last:border-0 last:pb-0">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
+                                            <Icon name="FilePlus" size={14} className="text-indigo-600 dark:text-indigo-400" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{f['Nama Produk']}</p>
+                                            <p className="text-xs text-slate-500">FA-{f['FA']} (Rev {f['REV'] || '-'}) • {f['QTY']} QTY</p>
+                                        </div>
+                                    </div>
+                                )) : (
+                                     <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-4">Belum ada aktivitas.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function InputFormulaView({ materials, fetchData, showNotification, Icon }) {
+            const [formData, setFormData] = useState({
+                namaProduk: '', fa: '', rev: '', qty: '', material: '', pail: ''
+            });
+            const [selectedMaterialData, setSelectedMaterialData] = useState(null);
+            const [isSubmitting, setIsSubmitting] = useState(false);
+
+            // Membuat daftar unik dari kolom "Nama Produk" di sheet Material
+            const uniqueProducts = [...new Set(materials.map(mat => String(mat['Nama Produk'] || '')))].filter(Boolean);
+
+            const filteredMaterials = useMemo(() => {
+                if (!formData.namaProduk) return [];
+                return materials.filter(mat => String(mat['Nama Produk'] || '') === formData.namaProduk);
+            }, [materials, formData.namaProduk]);
+
+            const kg = useMemo(() => {
+                if (selectedMaterialData && formData.qty) {
+                    return (Number(selectedMaterialData['Qty Material']) * Number(formData.qty)) / 100;
+                }
+                return 0;
+            }, [selectedMaterialData, formData.qty]);
+
+            // Formulasi sekarang dihitung berdasarkan Pail yang diinputkan di form
+            const formulasi = useMemo(() => {
+                if (formData.pail && formData.qty && kg) {
+                    return (Number(formData.pail) / Number(formData.qty)) * kg;
+                }
+                return 0;
+            }, [formData.pail, formData.qty, kg]);
+
+            const handleChange = (e) => {
+                const { name, value } = e.target;
+                
+                if (name === 'namaProduk') {
+                    setFormData(prev => ({ ...prev, namaProduk: value, material: '', pail: '' }));
+                    setSelectedMaterialData(null); 
+                } else if (name === 'material') {
+                    const mat = materials.find(m => m['Nama Material'] === value && String(m['Nama Produk'] || '') === formData.namaProduk);
+                    // Saat material dipilih, otomatis isi Pail berdasarkan database (jika ada), pengguna tetap bisa edit.
+                    setFormData(prev => ({ 
+                        ...prev, 
+                        material: value, 
+                        pail: mat && mat['Pail'] ? String(mat['Pail']) : '' 
+                    }));
+                    setSelectedMaterialData(mat || null);
+                } else {
+                    setFormData(prev => ({ ...prev, [name]: value }));
+                }
+            };
+
+            const handleReset = () => {
+                setFormData({ namaProduk: '', fa: '', rev: '', qty: '', material: '', pail: '' });
+                setSelectedMaterialData(null);
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                if (!formData.namaProduk || !formData.fa || !formData.qty || !formData.material || !formData.pail) {
+                    showNotification('Mohon lengkapi seluruh field yang wajib diisi', 'error');
+                    return;
+                }
+
+                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
+                     showNotification('Aplikasi belum terhubung ke database', 'error');
+                     return;
+                }
+
+                const payload = {
+                    action: 'addFormula',
+                    data: {
+                        'Nama Produk': formData.namaProduk,
+                        'FA': formData.fa,
+                        'REV': formData.rev,
+                        'QTY': Number(formData.qty),
+                        'Material': formData.material,
+                        'Qty Material': selectedMaterialData['Qty Material'],
+                        'Kg': kg,
+                        'Pail': Number(formData.pail), // Menggunakan Pail dari input
+                        'Formulasi': formulasi
+                    }
+                };
+
+                setIsSubmitting(true);
+
+                try {
+                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    });
+                    
+                    if(!response.ok) throw new Error("Gagal menyimpan");
+                    
+                    showNotification('Formula baru berhasil disimpan!');
+                    handleReset();
+                    await fetchData();
+                } catch (error) {
+                    showNotification('Terjadi kesalahan saat menyimpan', 'error');
+                    console.error("Save Error:", error);
+                } finally {
+                    setIsSubmitting(false);
+                }
+            };
+
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
+            const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
+
+            return (
+                <div className="max-w-4xl">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Input Formula Baru</h2>
+                        <p className="text-sm text-slate-500 mt-1">Tambahkan data spesifikasi formula produk baru ke dalam database.</p>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                        <form onSubmit={handleSubmit}>
+                            <div className="p-6 md:p-8 space-y-8">
+                                <div>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Informasi Produk</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div className="md:col-span-2">
+                                            <label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label>
+                                            <select name="namaProduk" value={formData.namaProduk} onChange={handleChange} className={inputClass} required>
+                                                <option value="">Pilih Nama Produk...</option>
+                                                {uniqueProducts.map((prod, idx) => (
+                                                    <option key={`prod-${idx}`} value={prod}>{prod}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label>
+                                            <input type="text" name="fa" value={formData.fa} onChange={handleChange} className={inputClass} placeholder="01" required />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Revisi (REV)</label>
+                                            <input type="text" name="rev" value={formData.rev} onChange={handleChange} className={inputClass} placeholder="A" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Detail Material & Kuantitas</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                        <div>
+                                            <label className={labelClass}>Base QTY <span className="text-red-500">*</span></label>
+                                            <input type="number" name="qty" value={formData.qty} onChange={handleChange} className={inputClass} placeholder="1000" required min="1" />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label>
+                                            <select name="material" value={formData.material} onChange={handleChange} className={inputClass} required disabled={!formData.namaProduk}>
+                                                <option value="">{formData.namaProduk ? "Pilih Material..." : "Pilih Produk Dahulu..."}</option>
+                                                {filteredMaterials.map((mat, idx) => (
+                                                    <option key={idx} value={mat['Nama Material']}>{mat['Nama Material']}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Pail <span className="text-red-500">*</span></label>
+                                            <input type="number" name="pail" value={formData.pail} onChange={handleChange} className={inputClass} placeholder="Contoh: 2" required min="0" step="any" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {selectedMaterialData && (
+                                    <div className="bg-slate-50 dark:bg-slate-800/30 rounded-lg p-5 border border-slate-200 dark:border-slate-700/50">
+                                        <div className="flex items-center space-x-2 mb-4">
+                                            <Icon name="Calculator" size={16} className="text-indigo-600 dark:text-indigo-400" />
+                                            <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Kalkulasi Otomatis</h4>
+                                        </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Qty Material</p>
+                                                <p className="text-base font-semibold text-slate-900 dark:text-white">{selectedMaterialData['Qty Material']}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Pail (Input)</p>
+                                                <p className="text-base font-semibold text-slate-900 dark:text-white">{formData.pail || '-'}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mb-1">Total (Kg)</p>
+                                                <p className="text-xl font-bold text-slate-900 dark:text-white">{kg.toFixed(2)}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Formulasi</p>
+                                                <p className="text-xl font-bold text-slate-900 dark:text-white">{formulasi.toFixed(4)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end space-x-3">
+                                <button type="button" onClick={handleReset} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                    Batalkan
+                                </button>
+                                <button type="submit" disabled={isSubmitting || !GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA'} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm transition-all flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 disabled:cursor-not-allowed">
+                                    {isSubmitting ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : <Icon name="CheckCircle" size={16} className="mr-2" />}
+                                    <span>{isSubmitting ? 'Menyimpan...' : 'Simpan Formula'}</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        function CalculatorView({ formulas, Icon }) {
+            const [selectedProduct, setSelectedProduct] = useState('');
+            const [selectedFA, setSelectedFA] = useState('');
+            const [selectedREV, setSelectedREV] = useState('');
+            const [qtyProduksi, setQtyProduksi] = useState('');
+            const [pailProduksi, setPailProduksi] = useState('');
+
+            // PERBAIKAN: Konversi ke String agar angka dari GSheets cocok dengan input teks HTML
+            // .filter(Boolean) digunakan untuk menghilangkan opsi kosong jika ada baris kosong di GSheets
+            const productList = [...new Set(formulas.map(f => String(f['Nama Produk'] || '')))].filter(Boolean);
+            
+            const faList = [...new Set(formulas
+                .filter(f => String(f['Nama Produk'] || '') === selectedProduct)
+                .map(f => String(f['FA'] || ''))
+            )].filter(Boolean);
+
+            const revList = [...new Set(formulas
+                .filter(f => String(f['Nama Produk'] || '') === selectedProduct && String(f['FA'] || '') === selectedFA)
+                .map(f => String(f['REV'] || ''))
+            )].filter(Boolean);
+
+            const activeFormulas = formulas.filter(f => 
+                String(f['Nama Produk'] || '') === selectedProduct && 
+                String(f['FA'] || '') === selectedFA &&
+                (selectedREV === '' || String(f['REV'] || '') === selectedREV)
+            );
+
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:focus:border-indigo-400 outline-none transition-all text-slate-900 dark:text-slate-100";
+            const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
+
+            return (
+                <div className="space-y-6">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Kalkulator Skala Produksi</h2>
+                        <p className="text-sm text-slate-500 mt-1">Simulasikan kebutuhan material secara proporsional sesuai dengan target produksi.</p>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                            <div>
+                                <label className={labelClass}>Produk</label>
+                                <select value={selectedProduct} onChange={(e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); }} className={inputClass}>
+                                    <option value="">-- Pilih Produk --</option>
+                                    {productList.map(p => <option key={p} value={p}>{p}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Kode FA</label>
+                                <select value={selectedFA} onChange={(e) => { setSelectedFA(e.target.value); setSelectedREV(''); }} className={inputClass} disabled={!selectedProduct}>
+                                    <option value="">-- Pilih FA --</option>
+                                    {faList.map(fa => <option key={fa} value={fa}>{fa}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Revisi (REV)</label>
+                                <select value={selectedREV} onChange={(e) => setSelectedREV(e.target.value)} className={inputClass} disabled={!selectedFA}>
+                                    <option value="">-- Semua REV --</option>
+                                    {revList.map(rev => <option key={rev} value={rev}>{rev}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Target Qty</label>
+                                <input type="number" value={qtyProduksi} onChange={(e) => { setQtyProduksi(e.target.value); setPailProduksi(''); }} className={inputClass} placeholder="Cth: 500" min="1" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Target Pail</label>
+                                <input type="number" value={pailProduksi} onChange={(e) => { setPailProduksi(e.target.value); setQtyProduksi(''); }} className={inputClass} placeholder="Cth: 10" min="1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {activeFormulas.length > 0 && (qtyProduksi || pailProduksi) && (
+                        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-slide-in-up">
+                            <div className="p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex justify-between items-center">
+                                <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center">
+                                    <Icon name="ArrowUpRight" size={16} className="mr-2 text-indigo-500" /> Estimasi Kebutuhan Material
+                                </h4>
+                                <div className="flex space-x-2">
+                                    {qtyProduksi && (
+                                        <span className="px-2.5 py-1 text-xs font-semibold bg-indigo-100 text-indigo-800 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-md">
+                                            Target: {qtyProduksi} QTY
+                                        </span>
+                                    )}
+                                    {pailProduksi && (
+                                        <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 rounded-md">
+                                            Target: {pailProduksi} Pail
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800">
+                                        <tr>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Nama Material</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">REV</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Base QTY</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Base Pail</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Base Kg</th>
+                                            <th className="px-5 py-3 font-semibold text-indigo-600 dark:text-indigo-400 text-xs uppercase tracking-wider">Req. Kg</th>
+                                            <th className="px-5 py-3 font-semibold text-emerald-600 dark:text-emerald-400 text-xs uppercase tracking-wider">Req. Formulasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    {activeFormulas.map((form, idx) => {
+                                        const baseQty = Number(form['QTY']) || 1; 
+                                        const basePail = Number(form['Pail']) || 1;
+
+                                        let multiplier = 1;
+                                        if (qtyProduksi) {
+                                            multiplier = Number(qtyProduksi) / baseQty;
+                                        } else if (pailProduksi) {
+                                            multiplier = Number(pailProduksi) / basePail;
+                                        }
+
+                                        const reqKg = Number(form['Kg']) * multiplier;
+                                        const jumlahPail = basePail * multiplier;
+                                        
+                                        // Rumus Baru Formulasi: (Jumlah pail * Base Qty) : Total (kg)
+                                        const reqFormulasi = reqKg !== 0 ? (jumlahPail * baseQty) / reqKg : 0;
+
+                                        return (
+                                            <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                <td className="px-5 py-4 font-medium text-slate-900 dark:text-slate-200">{form['Material']}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{form['REV'] || '-'}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{form['QTY']}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{form['Pail']}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{Number(form['Kg']).toFixed(2)}</td>
+                                                <td className="px-5 py-4 font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-500/10">{reqKg.toFixed(2)}</td>
+                                                <td className="px-5 py-4 font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50/50 dark:bg-emerald-500/10">{reqFormulasi.toFixed(4)}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function DataTableView({ formulas, handleDelete, isLoading, Icon }) {
+            const [searchTerm, setSearchTerm] = useState('');
+            const [currentPage, setCurrentPage] = useState(1);
+            const [expandedRows, setExpandedRows] = useState(new Set());
+            const itemsPerPage = 10;
+
+            // Grouping Logic berdasarkan kombinasi Nama Produk, FA, REV, dan QTY
+            const groupedFormulas = useMemo(() => {
+                const groups = {};
+                formulas.forEach(item => {
+                    const key = `${item['Nama Produk']}_${item['FA']}_${item['REV']}_${item['QTY']}`;
+                    if (!groups[key]) {
+                        groups[key] = {
+                            key,
+                            'Nama Produk': item['Nama Produk'],
+                            'FA': item['FA'],
+                            'REV': item['REV'],
+                            'QTY': item['QTY'],
+                            materials: []
+                        };
+                    }
+                    groups[key].materials.push(item);
+                });
+                return Object.values(groups);
+            }, [formulas]);
+
+            // Filter pencarian berdasarkan nama produk, FA, REV, maupun nama material di dalam grupnya
+            const filteredData = groupedFormulas.filter(group => {
+                const searchLower = searchTerm.toLowerCase();
+                return (
+                    String(group['Nama Produk']).toLowerCase().includes(searchLower) ||
+                    String(group['FA']).toLowerCase().includes(searchLower) ||
+                    String(group['REV']).toLowerCase().includes(searchLower) ||
+                    group.materials.some(mat => String(mat['Material']).toLowerCase().includes(searchLower))
+                );
+            });
+
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            const currentData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+            const toggleRow = (key) => {
+                const newExpanded = new Set(expandedRows);
+                if (newExpanded.has(key)) {
+                    newExpanded.delete(key);
+                } else {
+                    newExpanded.add(key);
+                }
+                setExpandedRows(newExpanded);
+            };
+
+            // Export flat format (tidak dikelompokkan agar mudah diproses di Excel)
+            const exportToCSV = () => {
+                if(!formulas.length) return;
+                const headers = ["Nama Produk", "FA", "REV", "QTY", "Material", "Qty Material", "Pail", "Formulasi"];
+                const csvRows = [];
+                csvRows.push(headers.join(','));
+                formulas.forEach(row => {
+                    const values = headers.map(header => {
+                        const escaped = ('' + row[header]).replace(/"/g, '\\"');
+                        return `"${escaped}"`;
+                    });
+                    csvRows.push(values.join(','));
+                });
+                const csvContent = "data:text/csv;charset=utf-8," + csvRows.join('\n');
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "data_formula.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            return (
+                <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col animate-fade-in">
+                    <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+                        <div>
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Database Master</h3>
+                            <p className="text-xs text-slate-500 mt-1">Total {groupedFormulas.length} kombinasi formula (dari {formulas.length} data material).</p>
+                        </div>
+                        <div className="flex items-center space-x-3 w-full sm:w-auto">
+                            <div className="relative flex-1 sm:w-64">
+                                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">
+                                    <Icon name="Search" size={16} />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    placeholder="Cari referensi..." 
+                                    value={searchTerm}
+                                    onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+                                    className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100"
+                                />
+                            </div>
+                            <button onClick={exportToCSV} className="flex items-center justify-center space-x-2 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20">
+                                <Icon name="Download" size={16} /> <span className="hidden sm:inline">Ekspor CSV</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                            <thead className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-800">
+                                <tr>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider w-16">No</th>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Nama Produk</th>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">FA/REV</th>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">QTY</th>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Jumlah Material</th>
+                                    <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                                {currentData.length > 0 ? currentData.map((group, idx) => {
+                                    const isExpanded = expandedRows.has(group.key);
+                                    const globalIndex = (currentPage - 1) * itemsPerPage + idx + 1;
+                                    
+                                    return (
+                                        <Fragment key={group.key}>
+                                            <tr 
+                                                className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer transition-colors ${isExpanded ? 'bg-slate-50 dark:bg-slate-800/20' : ''}`}
+                                                onClick={() => toggleRow(group.key)}
+                                            >
+                                                <td className="px-5 py-4 text-slate-500 dark:text-slate-400 font-medium">{globalIndex}</td>
+                                                <td className="px-5 py-4 font-medium text-slate-900 dark:text-slate-200">{group['Nama Produk']}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300">
+                                                        {group['FA']}/{group['REV'] || '-'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">{group['QTY']}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400">
+                                                    <span className="inline-flex items-center bg-indigo-50 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 px-2 py-0.5 rounded-full text-xs font-medium">
+                                                        {group.materials.length} Material
+                                                    </span>
+                                                </td>
+                                                <td className="px-5 py-4 text-right">
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); toggleRow(group.key); }} 
+                                                        className="px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md text-xs font-medium transition-colors shadow-sm focus:outline-none flex items-center inline-flex space-x-1"
+                                                    >
+                                                        <span>Detail</span>
+                                                        <Icon name={isExpanded ? "ChevronUp" : "ChevronDown"} size={14} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            {isExpanded && (
+                                                <tr>
+                                                    <td colSpan="6" className="p-0 bg-slate-50/30 dark:bg-[#0B1120]/30">
+                                                        <div className="mx-5 my-4 bg-white dark:bg-[#111827] border-l-4 border-indigo-500 rounded-r-xl shadow-sm border-t border-r border-b border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in-up">
+                                                            
+                                                            <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+                                                                <div>
+                                                                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">{group['Nama Produk']}</h4>
+                                                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">FA {group['FA']} / REV {group['REV'] || '-'} / QTY {group['QTY']}</p>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="overflow-x-auto p-4">
+                                                                <table className="w-full text-left text-xs whitespace-nowrap border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                                                                    <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                                                                        <tr>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 w-12">No</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Material</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Qty Material</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Pail</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Formulasi</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Aksi</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                                                        {group.materials.map((mat, mIdx) => (
+                                                                            <tr key={mIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 group/mat transition-colors">
+                                                                                <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{mIdx + 1}</td>
+                                                                                <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
+                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">
+                                                                                    {mat['Qty Material'] !== '' && mat['Qty Material'] !== undefined 
+                                                                                        ? Number(Number(mat['Qty Material']).toFixed(5)) 
+                                                                                        : '-'}
+                                                                                </td>
+                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400">{mat['Pail'] || '-'}</td>
+                                                                                <td className="px-4 py-2.5 font-semibold text-indigo-600 dark:text-indigo-400">{Number(mat['Formulasi']).toFixed(4)}</td>
+                                                                                <td className="px-4 py-2.5 text-right">
+                                                                                    <button onClick={() => handleDelete(mat.id)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors opacity-0 group-hover/mat:opacity-100 focus:opacity-100 focus:outline-none" title="Hapus Data Material">
+                                                                                        <Icon name="Trash2" size={14} />
+                                                                                    </button>
+                                                                                </td>
+                                                                            </tr>
+                                                                        ))}
+                                                                    </tbody>
+                                                                </table>
+                                                                
+                                                                <div className="mt-4 flex flex-col sm:flex-row sm:space-x-8 space-y-2 sm:space-y-0 text-sm p-3 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-100 dark:border-slate-800/50">
+                                                                    <div className="font-medium text-slate-600 dark:text-slate-400">
+                                                                        Total Material : <span className="font-bold text-slate-900 dark:text-white ml-1">{group.materials.length}</span>
+                                                                    </div>
+                                                                    <div className="font-medium text-slate-600 dark:text-slate-400">
+                                                                        Total Formulasi : <span className="font-bold text-indigo-600 dark:text-indigo-400 ml-1">
+                                                                            {group.materials.reduce((sum, mat) => sum + Number(mat['Formulasi'] || 0), 0).toFixed(4)}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </Fragment>
+                                    );
+                                }) : (
+                                    <tr>
+                                        <td colSpan="6" className="px-5 py-8 text-center text-slate-500 text-sm">
+                                            {isLoading ? (
+                                                <div className="flex items-center justify-center"><Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> Menarik data...</div>
+                                            ) : 'Tidak ada data ditemukan'}
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className="px-5 py-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-[#111827] rounded-b-xl gap-4">
+                            <span className="text-xs text-slate-500">
+                                Menampilkan <span className="font-medium text-slate-900 dark:text-slate-200">{((currentPage - 1) * itemsPerPage) + 1}</span> - <span className="font-medium text-slate-900 dark:text-slate-200">{Math.min(currentPage * itemsPerPage, filteredData.length)}</span> dari <span className="font-medium text-slate-900 dark:text-slate-200">{filteredData.length}</span> formula
+                            </span>
+                            <div className="flex space-x-1">
+                                <button 
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                    className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                >
+                                    Prev
+                                </button>
+                                <button 
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                    className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
