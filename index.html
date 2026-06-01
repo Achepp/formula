@@ -616,79 +616,104 @@
         }
 
         function InputFormulaView({ materials, fetchData, showNotification, Icon }) {
-            const [formData, setFormData] = useState({
-                namaProduk: '', fa: '', rev: '', qty: '', material: '', pail: ''
+            // State untuk menampung data grup header formula
+            const [headerData, setHeaderData] = useState({
+                namaProduk: '', fa: '', rev: '', qty: ''
             });
-            const [selectedMaterialData, setSelectedMaterialData] = useState(null);
+
+            // State dinamis untuk list material
+            const [materialsList, setMaterialsList] = useState([
+                { id: Date.now(), material: '', qtyMaterial: '', pail: '' }
+            ]);
+
             const [isSubmitting, setIsSubmitting] = useState(false);
 
-            const uniqueProducts = [...new Set(materials.map(mat => String(mat['Nama Produk'] || '')))].filter(Boolean);
-            const filteredMaterials = useMemo(() => {
-                if (!formData.namaProduk) return [];
-                return materials.filter(mat => String(mat['Nama Produk'] || '') === formData.namaProduk);
-            }, [materials, formData.namaProduk]);
-
-            const kg = useMemo(() => {
-                if (selectedMaterialData && formData.qty) {
-                    return (Number(selectedMaterialData['Qty Material']) * Number(formData.qty)) / 100;
-                }
-                return 0;
-            }, [selectedMaterialData, formData.qty]);
-
-            const formulasi = useMemo(() => {
-                if (formData.pail && formData.qty && kg) {
-                    return (Number(formData.pail) / Number(formData.qty)) * kg;
-                }
-                return 0;
-            }, [formData.pail, formData.qty, kg]);
-
-            const handleChange = (e) => {
+            const handleHeaderChange = (e) => {
                 const { name, value } = e.target;
-                if (name === 'namaProduk') {
-                    setFormData(prev => ({ ...prev, namaProduk: value, material: '', pail: '' }));
-                    setSelectedMaterialData(null); 
-                } else if (name === 'material') {
-                    const mat = materials.find(m => m['Nama Material'] === value && String(m['Nama Produk'] || '') === formData.namaProduk);
-                    setFormData(prev => ({ ...prev, material: value, pail: mat && mat['Pail'] ? String(mat['Pail']) : '' }));
-                    setSelectedMaterialData(mat || null);
-                } else {
-                    setFormData(prev => ({ ...prev, [name]: value }));
+                setHeaderData(prev => ({ ...prev, [name]: value }));
+            };
+
+            const handleMaterialChange = (id, field, value) => {
+                // Validasi Maksimal 5 digit di belakang koma untuk Qty Material
+                if (field === 'qtyMaterial' && value.includes('.')) {
+                    if (value.split('.')[1].length > 5) {
+                        showNotification('Qty Material maksimal 5 angka di belakang koma.', 'error');
+                        return; // Membatalkan input jika lebih dari 5 digit desimal
+                    }
                 }
+                setMaterialsList(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
+            };
+
+            const addMaterialRow = () => {
+                setMaterialsList(prev => [...prev, { id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
+            };
+
+            const removeMaterialRow = (id) => {
+                if (materialsList.length === 1) return;
+                setMaterialsList(prev => prev.filter(m => m.id !== id));
             };
 
             const handleReset = () => {
-                setFormData({ namaProduk: '', fa: '', rev: '', qty: '', material: '', pail: '' });
-                setSelectedMaterialData(null);
+                setHeaderData({ namaProduk: '', fa: '', rev: '', qty: '' });
+                setMaterialsList([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
             };
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
-                if (!formData.namaProduk || !formData.fa || !formData.qty || !formData.material || !formData.pail) {
-                    showNotification('Mohon lengkapi seluruh field yang wajib diisi', 'error');
+                
+                // Validasi Data Header
+                if (!headerData.namaProduk || !headerData.fa || !headerData.qty) {
+                    showNotification('Mohon lengkapi Informasi Produk dan Base QTY', 'error');
                     return;
                 }
+
+                // Validasi setiap row material
+                for (let i = 0; i < materialsList.length; i++) {
+                    const m = materialsList[i];
+                    if (!m.material || !m.qtyMaterial || !m.pail) {
+                        showNotification(`Mohon lengkapi data Material ke-${i+1}`, 'error');
+                        return;
+                    }
+                }
+
                 if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
                      showNotification('Mode Preview: Data tidak dapat disimpan ke server', 'error');
                      return;
                 }
 
                 setIsSubmitting(true);
-                const payload = {
-                    action: 'addFormula',
-                    data: {
-                        'Nama Produk': formData.namaProduk, 'FA': formData.fa, 'REV': formData.rev, 'QTY': Number(formData.qty),
-                        'Material': formData.material, 'Qty Material': selectedMaterialData['Qty Material'], 'Kg': kg,
-                        'Pail': Number(formData.pail), 'Formulasi': formulasi
-                    }
-                };
+                
                 try {
-                    const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    if(!response.ok) throw new Error("Gagal menyimpan");
-                    showNotification('Formula baru berhasil disimpan!');
+                    // Loop untuk mengirim data per baris material secara berurutan agar aman di Google Sheets
+                    for (const mat of materialsList) {
+                        const baseQty = Number(headerData.qty);
+                        const kg = (Number(mat.qtyMaterial) * baseQty) / 100;
+                        const formulasi = baseQty !== 0 ? (Number(mat.pail) / baseQty) * kg : 0;
+
+                        const payload = {
+                            action: 'addFormula',
+                            data: {
+                                'Nama Produk': headerData.namaProduk, 
+                                'FA': headerData.fa, 
+                                'REV': headerData.rev, 
+                                'QTY': baseQty,
+                                'Material': mat.material, 
+                                'Qty Material': Number(mat.qtyMaterial), 
+                                'Kg': kg,
+                                'Pail': Number(mat.pail), 
+                                'Formulasi': formulasi
+                            }
+                        };
+                        
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                        if(!response.ok) throw new Error("Gagal menyimpan material: " + mat.material);
+                    }
+                    
+                    showNotification('Formula beserta material berhasil disimpan!');
                     handleReset();
                     await fetchData();
                 } catch (error) {
-                    showNotification('Terjadi kesalahan saat menyimpan', 'error');
+                    showNotification(error.message || 'Terjadi kesalahan saat menyimpan', 'error');
                 } finally {
                     setIsSubmitting(false);
                 }
@@ -701,89 +726,103 @@
                 <div className="max-w-4xl">
                     <div className="mb-6">
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Input Formula Baru</h2>
-                        <p className="text-sm text-slate-500 mt-1">Tambahkan data spesifikasi formula produk baru ke dalam database.</p>
+                        <p className="text-sm text-slate-500 mt-1">Tambahkan data spesifikasi formula dan material secara manual.</p>
                     </div>
 
                     <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         <form onSubmit={handleSubmit}>
-                            <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
+                            <div className="p-5 sm:p-8 space-y-8">
+                                {/* Informasi Produk */}
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Informasi Produk</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                                         <div className="sm:col-span-2">
                                             <label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label>
-                                            <select name="namaProduk" value={formData.namaProduk} onChange={handleChange} className={inputClass} required>
-                                                <option value="">Pilih Nama Produk...</option>
-                                                {uniqueProducts.map((prod, idx) => <option key={idx} value={prod}>{prod}</option>)}
-                                            </select>
+                                            <input type="text" name="namaProduk" value={headerData.namaProduk} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: PFT-213-2K SF LIGHT BLUE 6122" required />
                                         </div>
                                         <div>
                                             <label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label>
-                                            <input type="text" name="fa" value={formData.fa} onChange={handleChange} className={inputClass} placeholder="01" required />
+                                            <input type="text" name="fa" value={headerData.fa} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: 12" required />
                                         </div>
                                         <div>
                                             <label className={labelClass}>Revisi (REV)</label>
-                                            <input type="text" name="rev" value={formData.rev} onChange={handleChange} className={inputClass} placeholder="A" />
+                                            <input type="text" name="rev" value={headerData.rev} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: 4" />
                                         </div>
                                     </div>
                                 </div>
 
+                                {/* Detail Material & Kuantitas */}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Detail Material & Kuantitas</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                                        <div>
-                                            <label className={labelClass}>Base QTY <span className="text-red-500">*</span></label>
-                                            <input type="number" name="qty" value={formData.qty} onChange={handleChange} className={inputClass} placeholder="1000" required min="1" />
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label>
-                                            <select name="material" value={formData.material} onChange={handleChange} className={inputClass} required disabled={!formData.namaProduk}>
-                                                <option value="">{formData.namaProduk ? "Pilih Material..." : "Pilih Produk Dahulu..."}</option>
-                                                {filteredMaterials.map((mat, idx) => <option key={idx} value={mat['Nama Material']}>{mat['Nama Material']}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Pail <span className="text-red-500">*</span></label>
-                                            <input type="number" name="pail" value={formData.pail} onChange={handleChange} className={inputClass} placeholder="Contoh: 2" required min="0" step="any" />
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 space-y-3 sm:space-y-0">
+                                        <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Detail Material & Kuantitas</h3>
+                                        <div className="w-full sm:w-1/3">
+                                            <label className="flex items-center text-xs font-semibold text-slate-700 dark:text-slate-300">
+                                                <span className="mr-3 whitespace-nowrap">Base QTY <span className="text-red-500">*</span></span>
+                                                <input type="number" name="qty" value={headerData.qty} onChange={handleHeaderChange} className={`${inputClass} !py-1.5`} placeholder="Contoh: 64" required min="1" step="any" />
+                                            </label>
                                         </div>
                                     </div>
-                                </div>
 
-                                {selectedMaterialData && (
-                                    <div className="bg-slate-50 dark:bg-slate-800/30 rounded-lg p-5 border border-slate-200 dark:border-slate-700/50">
-                                        <div className="flex items-center space-x-2 mb-4">
-                                            <Icon name="Calculator" size={16} className="text-brand-600 dark:text-brand-400" />
-                                            <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Kalkulasi Otomatis</h4>
-                                        </div>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Qty Material</p>
-                                                <p className="text-base font-semibold text-slate-900 dark:text-white">{selectedMaterialData['Qty Material']}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Pail (Input)</p>
-                                                <p className="text-base font-semibold text-slate-900 dark:text-white">{formData.pail || '-'}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-brand-600 dark:text-brand-400 font-semibold mb-1">Total (Kg)</p>
-                                                <p className="text-xl font-bold text-slate-900 dark:text-white">{kg.toFixed(2)}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Formulasi</p>
-                                                <p className="text-xl font-bold text-slate-900 dark:text-white">{formulasi.toFixed(4)}</p>
-                                            </div>
-                                        </div>
+                                    <div className="space-y-4">
+                                        {materialsList.map((mat, index) => {
+                                            const baseQty = Number(headerData.qty) || 0;
+                                            const kg = baseQty ? (Number(mat.qtyMaterial) * baseQty) / 100 : 0;
+                                            const formulasi = baseQty && kg ? (Number(mat.pail) / baseQty) * kg : 0;
+
+                                            return (
+                                                <div key={mat.id} className="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 relative group transition-colors hover:border-brand-300 dark:hover:border-brand-700">
+                                                    {materialsList.length > 1 && (
+                                                        <button type="button" onClick={() => removeMaterialRow(mat.id)} className="absolute top-3 right-3 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md focus:outline-none transition-all sm:opacity-0 sm:group-hover:opacity-100" title="Hapus Material">
+                                                            <Icon name="Trash2" size={16} />
+                                                        </button>
+                                                    )}
+                                                    
+                                                    <h4 className="text-xs font-bold text-brand-600 dark:text-brand-400 mb-4 uppercase tracking-wider">Material {index + 1}</h4>
+                                                    
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                                        <div className="sm:col-span-1">
+                                                            <label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label>
+                                                            <input type="text" value={mat.material} onChange={(e) => handleMaterialChange(mat.id, 'material', e.target.value)} className={inputClass} placeholder="Contoh: RE-213 SF BASE D" required />
+                                                        </div>
+                                                        <div>
+                                                            <label className={labelClass}>Qty Material <span className="text-red-500">*</span></label>
+                                                            <input type="number" value={mat.qtyMaterial} onChange={(e) => handleMaterialChange(mat.id, 'qtyMaterial', e.target.value)} className={inputClass} placeholder="Maks. 5 desimal" required min="0" step="0.00001" />
+                                                        </div>
+                                                        <div>
+                                                            <label className={labelClass}>Pail <span className="text-red-500">*</span></label>
+                                                            <input type="number" value={mat.pail} onChange={(e) => handleMaterialChange(mat.id, 'pail', e.target.value)} className={inputClass} placeholder="Contoh: 16" required min="0" step="any" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t border-slate-200/60 dark:border-slate-700/60">
+                                                        <div>
+                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Kg (Otomatis)</p>
+                                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{kg.toFixed(5)}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Formulasi (Otomatis)</p>
+                                                            <p className="text-sm font-bold text-brand-600 dark:text-brand-400">{formulasi.toFixed(4)}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
-                                )}
+                                    
+                                    <button type="button" onClick={addMaterialRow} className="mt-5 inline-flex items-center px-4 py-2 bg-brand-50 dark:bg-brand-500/10 text-sm font-medium text-brand-600 dark:text-brand-400 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/20 border border-brand-200 dark:border-brand-800/50">
+                                        <Icon name="FilePlus" size={16} className="mr-2" />
+                                        + Tambah Material
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end space-x-3">
-                                <button type="button" onClick={handleReset} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+                                <button type="button" onClick={handleReset} className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                                     Batalkan
                                 </button>
-                                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm transition-all flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed">
+                                <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed">
                                     {isSubmitting ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : <Icon name="CheckCircle" size={16} className="mr-2" />}
-                                    <span>{isSubmitting ? 'Menyimpan...' : 'Simpan Formula'}</span>
+                                    <span>{isSubmitting ? 'Menyimpan Formula...' : 'Simpan Formula'}</span>
                                 </button>
                             </div>
                         </form>
