@@ -1112,6 +1112,10 @@
                 setSelectedProduct(''); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi('');
             };
 
+            // PERBAIKAN: Menambahkan deklarasi variabel agar tidak error saat diketik
+            const inputQtyNum = Number(qtyProduksi) || 0;
+            const inputPailNum = Number(pailProduksi) || 0;
+
             return (
                 <div className="space-y-6">
                     <div className="mb-6">
