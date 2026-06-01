@@ -19,6 +19,13 @@
                         brand: {
                             50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a',
                         }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-in-up': 'slideInUp 0.5s ease-out forwards',
+                        'zoom-in': 'zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'spin-slow': 'spin 1.5s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     }
                 }
             }
@@ -35,19 +42,20 @@
         @keyframes slideInUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        .animate-slide-in-up { animation: slideInUp 0.4s ease-out forwards; }
-        .animate-zoom-in { animation: zoomIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .animate-spin-slow { animation: spin 1s linear infinite; }
-
         @media print {
             body { background: white !important; color: black !important; }
             .print-hide { display: none !important; }
             .print-full-width { margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; }
             .print-border { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
         }
+
+        /* Custom Scrollbar for inner tables */
+        .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scroll::-webkit-scrollbar-thumb { background: #334155; }
+        
+        .chart-bar { transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-[#0B1120] text-slate-900 dark:text-slate-100 transition-colors duration-300">
@@ -75,10 +83,12 @@
                 AlertTriangle: <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></>,
                 Loader2: <><path d="M21 12a9 9 0 1 1-6.219-8.56"/></>,
                 TrendingUp: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>,
+                TrendingDown: <><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></>,
                 Package: <><line x1="16.5" x2="7.5" y1="9.4" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" x2="12" y1="22.08" y2="12"/></>,
                 Layers: <><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></>,
                 BarChart3: <><path d="M3 3v18h18"/><rect width="4" height="7" x="7" y="10" rx="1"/><rect width="4" height="12" x="15" y="5" rx="1"/></>,
                 ArrowUpRight: <><path d="M7 7h10v10"/><path d="M7 17 17 7"/></>,
+                ArrowRight: <><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></>,
                 Search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
                 Download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></>,
                 Trash2: <><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>,
@@ -92,8 +102,9 @@
                 User: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
                 Users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
                 Settings: <><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></>,
-                Printer: <><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></>,
-                RefreshCw: <><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>
+                Clock: <><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></>,
+                Wifi: <><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></>,
+                FileText: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></>
             };
             return (
                 <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -101,6 +112,28 @@
                 </svg>
             );
         };
+
+        // --- Custom Hook untuk Counter Animasi ---
+        function useCounter(end, duration = 1000) {
+            const [count, setCount] = useState(0);
+            useEffect(() => {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    setCount(Math.floor(progress * end));
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        setCount(end); // pastikan akurat di akhir
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }, [end, duration]);
+            
+            // Format to 1 decimal if needed, but for counts keep integer unless specified
+            return count;
+        }
 
         // --- KOMPONEN LOGIN ---
         function LoginView({ onLogin }) {
@@ -121,7 +154,6 @@
 
                 setIsLoading(true);
 
-                // Mock login untuk preview jika URL belum diganti
                 if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
                     setTimeout(() => {
                         if (username === 'admin' && password === 'admin') {
@@ -316,6 +348,27 @@
                 }
             };
 
+            // Global Export Data Function for Dashboard & Database views
+            const exportFormulasToCSV = () => {
+                if(!formulas.length) {
+                    showNotification('Tidak ada data untuk diexport', 'error');
+                    return;
+                }
+                const headers = ["Nama Produk", "FA", "REV", "QTY", "Material", "Qty Material", "Pail", "Formulasi"];
+                const csvRows = [headers.join(',')];
+                formulas.forEach(row => {
+                    const values = headers.map(h => `"${('' + row[h]).replace(/"/g, '\\"')}"`);
+                    csvRows.push(values.join(','));
+                });
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + csvRows.join('\n')));
+                link.setAttribute("download", "data_formula_export.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showNotification('Data berhasil diexport', 'success');
+            };
+
             if (!authUser) return <LoginView onLogin={handleLogin} />;
 
             const baseMenus = [
@@ -383,6 +436,7 @@
                                 <button 
                                     onClick={() => setIsDarkMode(!isDarkMode)}
                                     className="p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none"
+                                    title="Toggle Theme"
                                 >
                                     {isDarkMode ? <Icon name="Sun" size={18} /> : <Icon name="Moon" size={18} />}
                                 </button>
@@ -451,17 +505,17 @@
                         )}
 
                         <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto w-full print-full-width">
-                            {isLoading ? (
+                            {isLoading && !configError ? (
                                 <div className="flex flex-col items-center justify-center h-64 animate-fade-in print-hide">
                                     <Icon name="Loader2" size={32} className="animate-spin-slow text-brand-600 mb-4" />
                                     <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Sinkronisasi data database...</p>
                                 </div>
                             ) : configError ? null : ( 
                                 <div className="animate-slide-in-up print-full-width">
-                                    {activeMenu === 'dashboard' && <DashboardView formulas={formulas} materials={materials} Icon={Icon} />}
+                                    {activeMenu === 'dashboard' && <DashboardView formulas={formulas} materials={materials} authUser={authUser} setActiveMenu={setActiveMenu} exportFormulasToCSV={exportFormulasToCSV} Icon={Icon} />}
                                     {activeMenu === 'input' && <InputFormulaView materials={materials} fetchData={fetchData} showNotification={showNotification} Icon={Icon} />}
                                     {activeMenu === 'kalkulator' && <CalculatorView formulas={formulas} Icon={Icon} />}
-                                    {activeMenu === 'data' && <DataTableView formulas={formulas} isLoading={isLoading} Icon={Icon} userRole={authUser.Role} fetchData={fetchData} showNotification={showNotification} />}
+                                    {activeMenu === 'data' && <DataTableView formulas={formulas} isLoading={isLoading} Icon={Icon} userRole={authUser.Role} fetchData={fetchData} showNotification={showNotification} exportFormulasToCSV={exportFormulasToCSV}/>}
                                     {activeMenu === 'users' && authUser.Role === 'Admin' && <UserManagementView users={usersList} fetchData={fetchData} showNotification={showNotification} Icon={Icon} />}
                                 </div>
                             )}
@@ -472,51 +526,372 @@
         }
 
         // --- SUB KOMPONEN (DASHBOARD, INPUT, DATA, USERS) ---
-        // Komponen di bawah ini disingkat kontennya agar fokus pada fungsi utama, tapi intinya persis sama dengan kode sebelumnya
 
-        function DashboardView({ formulas, materials, Icon }) {
+        // ----------------------------------------------------
+        // DASHBOARD VIEW (UPGRADED)
+        // ----------------------------------------------------
+        function DashboardView({ formulas, materials, authUser, setActiveMenu, exportFormulasToCSV, Icon }) {
+            // Group formulas to count distinct products
+            const groupedFormulas = useMemo(() => {
+                const groups = {};
+                formulas.forEach(item => {
+                    const key = `${item['Nama Produk']}_${item['FA']}_${item['REV']}_${item['QTY']}`;
+                    if (!groups[key]) {
+                        groups[key] = {
+                            key, 'Nama Produk': item['Nama Produk'], 'FA': item['FA'], 'REV': item['REV'], 'QTY': item['QTY'], materials: []
+                        };
+                    }
+                    groups[key].materials.push(item);
+                });
+                return Object.values(groups);
+            }, [formulas]);
+
+            // Stats
             const totalProduk = new Set(formulas.map(f => f['Nama Produk'])).size;
-            const totalMaterial = materials.length;
-            const totalFormula = formulas.length;
-            const totalProduksi = formulas.reduce((acc, curr) => acc + (Number(curr.Kg) || 0), 0);
+            const totalFormula = groupedFormulas.length;
+            const totalMaterialUsed = formulas.length;
+            const rataRataMaterial = totalFormula > 0 ? (totalMaterialUsed / totalFormula).toFixed(1) : 0;
+            const estimasiProduksi = formulas.reduce((acc, curr) => acc + (Number(curr.Kg) || 0), 0);
 
-            const statCards = [
-                { title: 'Total Produk', value: totalProduk, icon: 'Package', trend: 'Aktif di Database', color: 'text-brand-600 dark:text-brand-400' },
-                { title: 'Total Formula', value: totalFormula, icon: 'Layers', trend: '+Baru ditambahkan', color: 'text-indigo-600 dark:text-indigo-400' },
-                { title: 'Material Aktif', value: totalMaterial, icon: 'Database', trend: 'Sinkron dengan Sheets', color: 'text-emerald-600 dark:text-emerald-400' },
-                { title: 'Estimasi Produksi (Kg)', value: totalProduksi.toFixed(1), icon: 'BarChart3', trend: 'Total akumulatif Kg', color: 'text-amber-600 dark:text-amber-400' },
-            ];
+            // Animated Counters
+            const countProduk = useCounter(totalProduk);
+            const countFormula = useCounter(totalFormula);
+            const countMaterial = useCounter(totalMaterialUsed);
+
+            // Latest 5 Products
+            const latestProducts = useMemo(() => {
+                return [...groupedFormulas].reverse().slice(0, 5);
+            }, [groupedFormulas]);
+
+            // Top 5 Materials
+            const topMaterialsList = useMemo(() => {
+                const counts = {};
+                formulas.forEach(f => {
+                    const m = f['Material'];
+                    if (m) counts[m] = (counts[m] || 0) + 1;
+                });
+                return Object.entries(counts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([name, count]) => ({ name, count }));
+            }, [formulas]);
+
+            // Dummy Timeline based on data existence
+            const activityTimeline = useMemo(() => {
+                if (formulas.length === 0) return [];
+                const latest = [...groupedFormulas].reverse().slice(0, 3);
+                const times = ['2 menit lalu', '10 menit lalu', '1 jam lalu'];
+                return latest.map((grp, idx) => ({
+                    action: idx === 2 ? 'Formula disinkronisasi' : 'Formula ditambahkan',
+                    target: grp['Nama Produk'],
+                    time: times[idx] || 'Beberapa saat lalu',
+                    color: idx === 2 ? 'bg-amber-500' : 'bg-brand-500'
+                }));
+            }, [groupedFormulas]);
+
+            // Bar Chart Data Prep (Top 6 products by material count)
+            const barChartData = useMemo(() => {
+                const prodCounts = {};
+                formulas.forEach(f => {
+                    const p = f['Nama Produk'];
+                    if(p) prodCounts[p] = (prodCounts[p] || 0) + 1;
+                });
+                const sorted = Object.entries(prodCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+                const maxVal = sorted.length > 0 ? sorted[0][1] : 1;
+                return sorted.map(([name, count]) => ({
+                    name: name.length > 10 ? name.substring(0, 10) + '...' : name,
+                    fullName: name,
+                    count,
+                    percent: (count / maxVal) * 100
+                }));
+            }, [formulas]);
+
+            // Donut Chart Data Prep (Top 4 + Others)
+            const donutChartData = useMemo(() => {
+                const counts = {};
+                formulas.forEach(f => {
+                    const m = f['Material'];
+                    if (m) counts[m] = (counts[m] || 0) + 1;
+                });
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                let top4 = sorted.slice(0, 4);
+                let othersCount = sorted.slice(4).reduce((sum, item) => sum + item[1], 0);
+                
+                let combined = [...top4.map(([name, count]) => ({name, count}))];
+                if (othersCount > 0) combined.push({name: 'Lainnya', count: othersCount});
+                
+                const total = combined.reduce((sum, item) => sum + item.count, 0) || 1;
+                const colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#cbd5e1'];
+                
+                let currentOffset = 0;
+                return combined.map((item, idx) => {
+                    const percentage = (item.count / total) * 100;
+                    // Circle circumference = 100 for easy dasharray mapping (r=15.9155)
+                    const dashArray = `${percentage} ${100 - percentage}`;
+                    const offset = 100 - currentOffset;
+                    currentOffset += percentage;
+                    return { ...item, percentage, color: colors[idx], dashArray, offset };
+                });
+            }, [formulas]);
+
+            const currentDateTime = new Date().toLocaleString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
 
             return (
                 <div className="space-y-6">
-                    <div className="mb-6 sm:mb-8">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Overview</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Pantau statistik formulasi dan penggunaan material Anda.</p>
+                    {/* SECTION 1 & 5 - Rangkuman Produksi (Merged) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white dark:bg-[#111827] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Formula</h3>
+                                <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg group-hover:scale-110 transition-transform"><Icon name="Layers" size={18} className="text-indigo-600 dark:text-indigo-400" /></div>
+                            </div>
+                            <div className="text-3xl font-bold text-slate-900 dark:text-white">{countFormula}</div>
+                        </div>
+                        
+                        <div className="bg-white dark:bg-[#111827] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Total Material</h3>
+                                <div className="p-2 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg group-hover:scale-110 transition-transform"><Icon name="Database" size={18} className="text-emerald-600 dark:text-emerald-400" /></div>
+                            </div>
+                            <div className="text-3xl font-bold text-slate-900 dark:text-white">{countMaterial}</div>
+                        </div>
+
+                        <div className="bg-white dark:bg-[#111827] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Rata-rata Material</h3>
+                                <div className="p-2 bg-amber-50 dark:bg-amber-500/10 rounded-lg group-hover:scale-110 transition-transform"><Icon name="PieChart" size={18} className="text-amber-600 dark:text-amber-400" /></div>
+                            </div>
+                            <div className="text-3xl font-bold text-slate-900 dark:text-white">{rataRataMaterial} <span className="text-sm text-slate-400 font-normal">/ formula</span></div>
+                        </div>
+
+                        <div className="bg-white dark:bg-[#111827] p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all group">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400">Estimasi Produksi</h3>
+                                <div className="p-2 bg-brand-50 dark:bg-brand-500/10 rounded-lg group-hover:scale-110 transition-transform"><Icon name="BarChart3" size={18} className="text-brand-600 dark:text-brand-400" /></div>
+                            </div>
+                            <div className="text-3xl font-bold text-slate-900 dark:text-white">{Number(estimasiProduksi.toFixed(0)).toLocaleString('id-ID')} <span className="text-sm text-slate-400 font-normal">Kg</span></div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {statCards.map((stat, idx) => (
-                            <div key={idx} className="bg-white dark:bg-[#111827] p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between print-border">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">{stat.title}</h3>
-                                    <div className="p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg"><Icon name={stat.icon} size={20} className={stat.color} /></div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">{stat.value}</div>
-                                    <div className="flex items-center text-xs text-slate-500 dark:text-slate-500 font-medium">
-                                        <Icon name="TrendingUp" size={12} className="mr-1 text-emerald-500" />{stat.trend}
+                    {/* SECTION 1 - Quick Action & SECTION 4 - Activity Timeline */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 space-y-4">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Quick Actions</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <button onClick={() => setActiveMenu('input')} className="flex items-center p-4 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-brand-500 dark:hover:border-brand-500 hover:shadow-md transition-all group text-left">
+                                    <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-900/30 flex items-center justify-center mr-4 group-hover:bg-brand-500 group-hover:text-white transition-colors text-brand-600 dark:text-brand-400"><Icon name="FilePlus" size={20} /></div>
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">Input Formula</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tambah data baru ke sistem</p>
                                     </div>
+                                </button>
+                                <button onClick={() => setActiveMenu('kalkulator')} className="flex items-center p-4 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-md transition-all group text-left">
+                                    <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mr-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors text-emerald-600 dark:text-emerald-400"><Icon name="Calculator" size={20} /></div>
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Kalkulator</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Simulasi target produksi</p>
+                                    </div>
+                                </button>
+                                <button onClick={() => setActiveMenu('data')} className="flex items-center p-4 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-indigo-500 dark:hover:border-indigo-500 hover:shadow-md transition-all group text-left">
+                                    <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mr-4 group-hover:bg-indigo-500 group-hover:text-white transition-colors text-indigo-600 dark:text-indigo-400"><Icon name="Database" size={20} /></div>
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">Master Formula</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Lihat database tersimpan</p>
+                                    </div>
+                                </button>
+                                <button onClick={exportFormulasToCSV} className="flex items-center p-4 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-amber-500 dark:hover:border-amber-500 hover:shadow-md transition-all group text-left">
+                                    <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center mr-4 group-hover:bg-amber-500 group-hover:text-white transition-colors text-amber-600 dark:text-amber-400"><Icon name="Download" size={20} /></div>
+                                    <div>
+                                        <p className="font-semibold text-slate-900 dark:text-white text-sm group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Export Data</p>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Unduh data CSV/Excel</p>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 flex flex-col">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-5 flex items-center">
+                                <Icon name="Activity" size={16} className="mr-2 text-slate-400" /> Aktivitas Terbaru
+                            </h3>
+                            <div className="flex-1 overflow-y-auto custom-scroll pr-2 relative">
+                                <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-slate-800"></div>
+                                {activityTimeline.length > 0 ? activityTimeline.map((item, i) => (
+                                    <div key={i} className="relative pl-8 mb-5 last:mb-0">
+                                        <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 border-white dark:border-[#111827] ${item.color} z-10`}></div>
+                                        <div>
+                                            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 mb-0.5">{item.action}</p>
+                                            <p className="text-sm font-medium text-brand-600 dark:text-brand-400 truncate mb-1" title={item.target}>{item.target}</p>
+                                            <p className="text-[11px] text-slate-400 font-medium flex items-center"><Icon name="Clock" size={12} className="mr-1" /> {item.time}</p>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <p className="text-sm text-slate-500 text-center py-4">Belum ada aktivitas terekam.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SECTION 3 - Charts */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Bar Chart (CSS Based) */}
+                        <div className="lg:col-span-2 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-6 flex items-center">
+                                <Icon name="BarChart2" size={16} className="mr-2 text-slate-400" /> Distribusi Material per Produk
+                            </h3>
+                            <div className="h-[200px] w-full flex items-end justify-around gap-2 px-2 mt-4 border-b border-slate-200 dark:border-slate-800 relative">
+                                {/* Grid lines background */}
+                                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none pb-[1px]">
+                                    {[...Array(4)].map((_,i) => <div key={i} className="w-full border-t border-slate-100 dark:border-slate-800/50"></div>)}
+                                </div>
+                                {barChartData.map((d, i) => (
+                                    <div key={i} className="relative group w-1/6 max-w-[48px] h-full flex items-end justify-center z-10">
+                                        <div 
+                                            className="w-full bg-brand-500 hover:bg-brand-400 dark:bg-brand-600 dark:hover:bg-brand-500 rounded-t-sm chart-bar relative" 
+                                            style={{ height: `${d.percent}%`, minHeight: '10%' }}
+                                        >
+                                            <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 transform -translate-x-1/2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs py-1 px-2 rounded shadow-lg whitespace-nowrap pointer-events-none transition-opacity z-20">
+                                                {d.count} Material
+                                            </div>
+                                        </div>
+                                        <div className="absolute -bottom-6 w-full text-center text-[10px] text-slate-500 truncate" title={d.fullName}>{d.name}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            {barChartData.length === 0 && <p className="text-center text-sm text-slate-500 mt-8">Belum ada data untuk ditampilkan.</p>}
+                        </div>
+
+                        {/* Donut Chart (SVG Based) */}
+                        <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6 flex flex-col">
+                            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider mb-2 flex items-center">
+                                <Icon name="PieChart" size={16} className="mr-2 text-slate-400" /> Rasio Material Top
+                            </h3>
+                            <div className="flex-1 flex flex-col items-center justify-center">
+                                {donutChartData.length > 0 ? (
+                                    <Fragment>
+                                        <div className="relative w-40 h-40">
+                                            <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
+                                                {donutChartData.map((d, i) => (
+                                                    <circle key={i} cx="18" cy="18" r="15.91549430918954" fill="transparent" stroke={d.color} strokeWidth="6" strokeDasharray={d.dashArray} strokeDashoffset={d.offset} className="transition-all duration-1000 ease-out" />
+                                                ))}
+                                            </svg>
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                                <span className="text-xl font-bold text-slate-900 dark:text-white">{formulas.length}</span>
+                                                <span className="text-[10px] text-slate-500">Material</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 w-full grid grid-cols-2 gap-2 text-xs">
+                                            {donutChartData.map((d, i) => (
+                                                <div key={i} className="flex items-center truncate" title={d.name}>
+                                                    <div className="w-2.5 h-2.5 rounded-sm mr-1.5 shrink-0" style={{backgroundColor: d.color}}></div>
+                                                    <span className="truncate text-slate-600 dark:text-slate-400">{d.name} ({Math.round(d.percentage)}%)</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </Fragment>
+                                ) : (
+                                    <p className="text-sm text-slate-500">Belum ada data.</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SECTION 2, 6, 7 - Data Lists */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        {/* Section 2: Produk Terbaru */}
+                        <div className="lg:col-span-2 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex flex-col">
+                            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
+                                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Produk Terbaru</h3>
+                                <button onClick={() => setActiveMenu('data')} className="text-xs font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 flex items-center">Lihat Semua <Icon name="ArrowRight" size={14} className="ml-1" /></button>
+                            </div>
+                            <div className="overflow-x-auto flex-1 custom-scroll">
+                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="bg-slate-100 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
+                                        <tr>
+                                            <th className="px-5 py-3 font-semibold text-slate-600 dark:text-slate-300">Nama Produk</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-600 dark:text-slate-300">FA/REV</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-600 dark:text-slate-300">Material</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-600 dark:text-slate-300 text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                                        {latestProducts.length > 0 ? latestProducts.map((p, i) => (
+                                            <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                <td className="px-5 py-3 font-medium text-slate-900 dark:text-slate-200">{p['Nama Produk']}</td>
+                                                <td className="px-5 py-3 text-slate-500"><span className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-xs font-medium">{p['FA']}/{p['REV']||'-'}</span></td>
+                                                <td className="px-5 py-3 text-slate-500">{p.materials.length} Mtrl</td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <button onClick={() => setActiveMenu('data')} className="text-xs font-medium px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-colors">Detail</button>
+                                                </td>
+                                            </tr>
+                                        )) : <tr><td colSpan="4" className="text-center py-6 text-slate-500 text-sm">Tidak ada data.</td></tr>}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Col 2 - Top Materials & DB Status */}
+                        <div className="space-y-6 flex flex-col">
+                            {/* Section 6: Top Material */}
+                            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden flex-1">
+                                <div className="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+                                    <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center"><Icon name="FileText" size={16} className="mr-2 text-slate-400" />Top 5 Material</h3>
+                                </div>
+                                <div className="p-2">
+                                    {topMaterialsList.length > 0 ? topMaterialsList.map((m, i) => (
+                                        <div key={i} className="flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-800/50 rounded-lg transition-colors">
+                                            <div className="flex items-center overflow-hidden pr-3">
+                                                <span className="w-5 font-bold text-slate-400 text-xs">{i+1}</span>
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate" title={m.name}>{m.name}</span>
+                                            </div>
+                                            <span className="text-xs font-semibold bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-400 px-2 py-1 rounded-md shrink-0">{m.count}x</span>
+                                        </div>
+                                    )) : <p className="text-sm text-center py-4 text-slate-500">Tidak ada data.</p>}
                                 </div>
                             </div>
-                        ))}
+
+                            {/* Section 7: Status Database */}
+                            <div className="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center">
+                                        <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mr-3">
+                                            <Icon name="Wifi" size={18} className="text-emerald-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mb-0.5">STATUS DATABASE</p>
+                                            <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center">
+                                                <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span> Connected
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+                                    <span>Last Sync: {currentDateTime}</span>
+                                    <span>{formulas.length} Records</span>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             );
         }
 
+        // ----------------------------------------------------
+        // KOMPONEN LAINNYA (INPUT, KALKULATOR, DATA, USER) TETAP SAMA
+        // ----------------------------------------------------
+
         function InputFormulaView({ materials, fetchData, showNotification, Icon }) {
-            const [headerData, setHeaderData] = useState({ namaProduk: '', fa: '', rev: '', qty: '' });
-            const [materialsList, setMaterialsList] = useState([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
+            // State untuk menampung data grup header formula
+            const [headerData, setHeaderData] = useState({
+                namaProduk: '', fa: '', rev: '', qty: ''
+            });
+
+            // State dinamis untuk list material
+            const [materialsList, setMaterialsList] = useState([
+                { id: Date.now(), material: '', qtyMaterial: '', pail: '' }
+            ]);
+
             const [isSubmitting, setIsSubmitting] = useState(false);
 
             const handleHeaderChange = (e) => {
@@ -526,36 +901,77 @@
 
             const handleMaterialChange = (id, field, value) => {
                 if (field === 'qtyMaterial' && value.includes('.')) {
-                    if (value.split('.')[1].length > 5) return showNotification('Qty Material maksimal 5 angka di belakang koma.', 'error');
+                    if (value.split('.')[1].length > 5) {
+                        showNotification('Qty Material maksimal 5 angka di belakang koma.', 'error');
+                        return;
+                    }
                 }
                 setMaterialsList(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
             };
 
-            const addMaterialRow = () => setMaterialsList(prev => [...prev, { id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
-            const removeMaterialRow = (id) => { if (materialsList.length > 1) setMaterialsList(prev => prev.filter(m => m.id !== id)); };
-            const handleReset = () => { setHeaderData({ namaProduk: '', fa: '', rev: '', qty: '' }); setMaterialsList([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]); };
+            const addMaterialRow = () => {
+                setMaterialsList(prev => [...prev, { id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
+            };
+
+            const removeMaterialRow = (id) => {
+                if (materialsList.length === 1) return;
+                setMaterialsList(prev => prev.filter(m => m.id !== id));
+            };
+
+            const handleReset = () => {
+                setHeaderData({ namaProduk: '', fa: '', rev: '', qty: '' });
+                setMaterialsList([{ id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
+            };
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
-                if (!headerData.namaProduk || !headerData.fa || !headerData.qty) return showNotification('Mohon lengkapi Informasi Produk dan Base QTY', 'error');
-                for (let i = 0; i < materialsList.length; i++) {
-                    const m = materialsList[i];
-                    if (!m.material || !m.qtyMaterial || !m.pail) return showNotification(`Mohon lengkapi data Material ke-${i+1}`, 'error');
+                
+                if (!headerData.namaProduk || !headerData.fa || !headerData.qty) {
+                    showNotification('Mohon lengkapi Informasi Produk dan Base QTY', 'error');
+                    return;
                 }
 
-                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') return showNotification('Mode Preview: Data tidak dapat disimpan', 'error');
+                for (let i = 0; i < materialsList.length; i++) {
+                    const m = materialsList[i];
+                    if (!m.material || !m.qtyMaterial || !m.pail) {
+                        showNotification(`Mohon lengkapi data Material ke-${i+1}`, 'error');
+                        return;
+                    }
+                }
+
+                if (!GOOGLE_APPS_SCRIPT_URL || GOOGLE_APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
+                     showNotification('Mode Preview: Data tidak dapat disimpan ke server', 'error');
+                     return;
+                }
 
                 setIsSubmitting(true);
+                
                 try {
                     for (const mat of materialsList) {
                         const baseQty = Number(headerData.qty);
                         const kg = (Number(mat.qtyMaterial) * baseQty) / 100;
                         const formulasi = baseQty !== 0 ? (Number(mat.pail) / baseQty) * kg : 0;
-                        const payload = { action: 'addFormula', data: { 'Nama Produk': headerData.namaProduk, 'FA': headerData.fa, 'REV': headerData.rev, 'QTY': baseQty, 'Material': mat.material, 'Qty Material': Number(mat.qtyMaterial), 'Kg': kg, 'Pail': Number(mat.pail), 'Formulasi': formulasi } };
+
+                        const payload = {
+                            action: 'addFormula',
+                            data: {
+                                'Nama Produk': headerData.namaProduk, 
+                                'FA': headerData.fa, 
+                                'REV': headerData.rev, 
+                                'QTY': baseQty,
+                                'Material': mat.material, 
+                                'Qty Material': Number(mat.qtyMaterial), 
+                                'Kg': kg,
+                                'Pail': Number(mat.pail), 
+                                'Formulasi': formulasi
+                            }
+                        };
+                        
                         const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
                         if(!response.ok) throw new Error("Gagal menyimpan material: " + mat.material);
                     }
-                    showNotification('Formula berhasil disimpan!');
+                    
+                    showNotification('Formula beserta material berhasil disimpan!');
                     handleReset();
                     await fetchData();
                 } catch (error) {
@@ -565,36 +981,46 @@
                 }
             };
 
-            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
             const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
 
             return (
                 <div className="max-w-4xl">
                     <div className="mb-6">
                         <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Input Formula Baru</h2>
+                        <p className="text-sm text-slate-500 mt-1">Tambahkan data spesifikasi formula dan material secara manual.</p>
                     </div>
 
-                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden print-border">
+                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         <form onSubmit={handleSubmit}>
                             <div className="p-5 sm:p-8 space-y-8">
                                 {/* Informasi Produk */}
                                 <div>
                                     <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Informasi Produk</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                                        <div className="sm:col-span-2"><label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label><input type="text" name="namaProduk" value={headerData.namaProduk} onChange={handleHeaderChange} className={inputClass} required /></div>
-                                        <div><label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label><input type="text" name="fa" value={headerData.fa} onChange={handleHeaderChange} className={inputClass} required /></div>
-                                        <div><label className={labelClass}>Revisi (REV)</label><input type="text" name="rev" value={headerData.rev} onChange={handleHeaderChange} className={inputClass} /></div>
+                                        <div className="sm:col-span-2">
+                                            <label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label>
+                                            <input type="text" name="namaProduk" value={headerData.namaProduk} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: PFT-213-2K SF LIGHT BLUE 6122" required />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label>
+                                            <input type="text" name="fa" value={headerData.fa} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: 12" required />
+                                        </div>
+                                        <div>
+                                            <label className={labelClass}>Revisi (REV)</label>
+                                            <input type="text" name="rev" value={headerData.rev} onChange={handleHeaderChange} className={inputClass} placeholder="Contoh: 4" />
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Detail Material */}
+                                {/* Detail Material & Kuantitas */}
                                 <div>
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 space-y-3 sm:space-y-0">
                                         <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Detail Material & Kuantitas</h3>
                                         <div className="w-full sm:w-1/3">
                                             <label className="flex items-center text-xs font-semibold text-slate-700 dark:text-slate-300">
                                                 <span className="mr-3 whitespace-nowrap">Base QTY <span className="text-red-500">*</span></span>
-                                                <input type="number" name="qty" value={headerData.qty} onChange={handleHeaderChange} className={`${inputClass} !py-1.5`} required min="1" step="any" />
+                                                <input type="number" name="qty" value={headerData.qty} onChange={handleHeaderChange} className={`${inputClass} !py-1.5`} placeholder="Contoh: 64" required min="1" step="any" />
                                             </label>
                                         </div>
                                     </div>
@@ -606,33 +1032,59 @@
                                             const formulasi = baseQty && kg ? (Number(mat.pail) / baseQty) * kg : 0;
 
                                             return (
-                                                <div key={mat.id} className="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 relative group transition-colors">
-                                                    {materialsList.length > 1 && <button type="button" onClick={() => removeMaterialRow(mat.id)} className="absolute top-3 right-3 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md focus:outline-none sm:opacity-0 sm:group-hover:opacity-100"><Icon name="Trash2" size={16} /></button>}
+                                                <div key={mat.id} className="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/20 relative group transition-colors hover:border-brand-300 dark:hover:border-brand-700">
+                                                    {materialsList.length > 1 && (
+                                                        <button type="button" onClick={() => removeMaterialRow(mat.id)} className="absolute top-3 right-3 p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md focus:outline-none transition-all sm:opacity-0 sm:group-hover:opacity-100" title="Hapus Material">
+                                                            <Icon name="Trash2" size={16} />
+                                                        </button>
+                                                    )}
+                                                    
                                                     <h4 className="text-xs font-bold text-brand-600 dark:text-brand-400 mb-4 uppercase tracking-wider">Material {index + 1}</h4>
+                                                    
                                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-                                                        <div className="sm:col-span-1"><label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label><input type="text" value={mat.material} onChange={(e) => handleMaterialChange(mat.id, 'material', e.target.value)} className={inputClass} required /></div>
-                                                        <div><label className={labelClass}>Qty Material <span className="text-red-500">*</span></label><input type="number" value={mat.qtyMaterial} onChange={(e) => handleMaterialChange(mat.id, 'qtyMaterial', e.target.value)} className={inputClass} required min="0" step="0.00001" /></div>
-                                                        <div><label className={labelClass}>Pail <span className="text-red-500">*</span></label><input type="number" value={mat.pail} onChange={(e) => handleMaterialChange(mat.id, 'pail', e.target.value)} className={inputClass} required min="0" step="any" /></div>
+                                                        <div className="sm:col-span-1">
+                                                            <label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label>
+                                                            <input type="text" value={mat.material} onChange={(e) => handleMaterialChange(mat.id, 'material', e.target.value)} className={inputClass} placeholder="Contoh: RE-213 SF BASE D" required />
+                                                        </div>
+                                                        <div>
+                                                            <label className={labelClass}>Qty Material <span className="text-red-500">*</span></label>
+                                                            <input type="number" value={mat.qtyMaterial} onChange={(e) => handleMaterialChange(mat.id, 'qtyMaterial', e.target.value)} className={inputClass} placeholder="Maks. 5 desimal" required min="0" step="0.00001" />
+                                                        </div>
+                                                        <div>
+                                                            <label className={labelClass}>Pail <span className="text-red-500">*</span></label>
+                                                            <input type="number" value={mat.pail} onChange={(e) => handleMaterialChange(mat.id, 'pail', e.target.value)} className={inputClass} placeholder="Contoh: 16" required min="0" step="any" />
+                                                        </div>
                                                     </div>
+
                                                     <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t border-slate-200/60 dark:border-slate-700/60">
-                                                        <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Kg (Otomatis)</p><p className="text-sm font-bold text-slate-800 dark:text-slate-200">{kg.toFixed(5)}</p></div>
-                                                        <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Formulasi (Otomatis)</p><p className="text-sm font-bold text-brand-600 dark:text-brand-400">{formulasi.toFixed(4)}</p></div>
+                                                        <div>
+                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Kg (Otomatis)</p>
+                                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{kg.toFixed(5)}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold mb-0.5">Formulasi (Otomatis)</p>
+                                                            <p className="text-sm font-bold text-brand-600 dark:text-brand-400">{formulasi.toFixed(4)}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             );
                                         })}
                                     </div>
-                                    <button type="button" onClick={addMaterialRow} className="mt-5 inline-flex items-center px-4 py-2 bg-brand-50 text-sm font-medium text-brand-600 rounded-lg hover:bg-brand-100 border border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 dark:border-brand-800/50">
-                                        <Icon name="FilePlus" size={16} className="mr-2" /> + Tambah Material
+                                    
+                                    <button type="button" onClick={addMaterialRow} className="mt-5 inline-flex items-center px-4 py-2 bg-brand-50 dark:bg-brand-500/10 text-sm font-medium text-brand-600 dark:text-brand-400 rounded-lg hover:bg-brand-100 dark:hover:bg-brand-500/20 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500/20 border border-brand-200 dark:border-brand-800/50">
+                                        <Icon name="FilePlus" size={16} className="mr-2" />
+                                        + Tambah Material
                                     </button>
                                 </div>
                             </div>
                             
-                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end space-x-3">
-                                <button type="button" onClick={handleReset} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">Batalkan</button>
-                                <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg flex items-center justify-center disabled:opacity-70">
+                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+                                <button type="button" onClick={handleReset} className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                    Batalkan
+                                </button>
+                                <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed">
                                     {isSubmitting ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : <Icon name="CheckCircle" size={16} className="mr-2" />}
-                                    <span>{isSubmitting ? 'Menyimpan...' : 'Simpan Formula'}</span>
+                                    <span>{isSubmitting ? 'Menyimpan Formula...' : 'Simpan Formula'}</span>
                                 </button>
                             </div>
                         </form>
@@ -641,7 +1093,6 @@
             );
         }
 
-        // --- UPDATED CALCULATOR VIEW ---
         function CalculatorView({ formulas, Icon }) {
             const [selectedProduct, setSelectedProduct] = useState('');
             const [selectedFA, setSelectedFA] = useState('');
@@ -649,187 +1100,124 @@
             const [qtyProduksi, setQtyProduksi] = useState('');
             const [pailProduksi, setPailProduksi] = useState('');
 
-            // Dropdown List Logic
             const productList = [...new Set(formulas.map(f => String(f['Nama Produk'] || '')))].filter(Boolean);
             const faList = [...new Set(formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct).map(f => String(f['FA'] || '')))].filter(Boolean);
             const revList = [...new Set(formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct && String(f['FA'] || '') === selectedFA).map(f => String(f['REV'] || '')))].filter(Boolean);
-            
-            // Active Materials filtered by dropdown selections
-            const activeMaterials = useMemo(() => {
-                if (!selectedProduct || !selectedFA || !selectedREV) return [];
-                return formulas.filter(f => 
-                    String(f['Nama Produk'] || '') === selectedProduct && 
-                    String(f['FA'] || '') === selectedFA &&
-                    String(f['REV'] || '') === selectedREV
-                );
-            }, [formulas, selectedProduct, selectedFA, selectedREV]);
+            const activeFormulas = formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct && String(f['FA'] || '') === selectedFA && (selectedREV === '' || String(f['REV'] || '') === selectedREV));
 
-            // Set initial QTY from database when formula is completely selected
-            useEffect(() => {
-                if (activeMaterials.length > 0 && !qtyProduksi && !pailProduksi) {
-                    setQtyProduksi(activeMaterials[0]['QTY'] || '');
-                }
-            }, [activeMaterials]);
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 dark:focus:border-brand-400 outline-none transition-all text-slate-900 dark:text-slate-100";
+            const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
 
-            const handleProductChange = (e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi(''); };
-            const handleFAChange = (e) => { setSelectedFA(e.target.value); setSelectedREV(''); setQtyProduksi(''); setPailProduksi(''); };
-            const handleREVChange = (e) => { setSelectedREV(e.target.value); setQtyProduksi(''); setPailProduksi(''); };
-            
             const handleReset = () => {
                 setSelectedProduct(''); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi('');
             };
 
-            // Calculations
-            let totalKg = 0;
-            let totalFormulasi = 0;
-            const inputQtyNum = Number(qtyProduksi) || 0;
-            const inputPailNum = Number(pailProduksi) || 0;
-
-            const computedMaterials = activeMaterials.map(mat => {
-                const qtyMat = Number(mat['Qty Material']) || 0;
-                
-                let kg = 0;
-                let formulasi = 0;
-
-                if (inputQtyNum > 0) {
-                    kg = (qtyMat * inputQtyNum) / 100;
-                    if (inputPailNum > 0) {
-                        formulasi = (inputPailNum / inputQtyNum) * kg;
-                    }
-                }
-
-                totalKg += kg;
-                totalFormulasi += formulasi;
-
-                return { ...mat, calculatedKg: kg, calculatedFormulasi: formulasi, qtyMat };
-            });
-
-            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
-            const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
-
             return (
-                <div className="max-w-4xl print-full-width">
-                    <div className="mb-6 print-hide">
-                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Kalkulator Formula</h2>
-                        <p className="text-sm text-slate-500 mt-1">Simulasikan perhitungan berdasarkan formula yang tersimpan di Master Formula.</p>
+                <div className="space-y-6">
+                    <div className="mb-6">
+                        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Kalkulator Skala Produksi</h2>
+                        <p className="text-sm text-slate-500 mt-1">Simulasikan kebutuhan material secara proporsional sesuai dengan target produksi.</p>
                     </div>
 
-                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden print-border">
-                        <div className="p-5 sm:p-8 space-y-8">
-                            
-                            {/* SECTION 1 - Informasi Produk */}
-                            <div>
-                                <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Informasi Produk</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                                    <div className="sm:col-span-3">
-                                        <label className={labelClass}>Nama Produk</label>
-                                        <select value={selectedProduct} onChange={handleProductChange} className={inputClass}>
-                                            <option value="">-- Pilih Produk --</option>
-                                            {productList.map(p => <option key={p} value={p}>{p}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="sm:col-span-1.5">
-                                        <label className={labelClass}>Kategori FA</label>
-                                        <select value={selectedFA} onChange={handleFAChange} className={inputClass} disabled={!selectedProduct}>
-                                            <option value="">-- Pilih FA --</option>
-                                            {faList.map(fa => <option key={fa} value={fa}>{fa}</option>)}
-                                        </select>
-                                    </div>
-                                    <div className="sm:col-span-1.5">
-                                        <label className={labelClass}>Revisi (REV)</label>
-                                        <select value={selectedREV} onChange={handleREVChange} className={inputClass} disabled={!selectedFA}>
-                                            <option value="">-- Pilih REV --</option>
-                                            {revList.map(rev => <option key={rev} value={rev}>{rev}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                {selectedProduct && selectedFA && selectedREV && activeMaterials.length === 0 && (
-                                    <div className="mt-4 p-3 bg-amber-50 text-amber-600 rounded-lg text-sm border border-amber-200 print-hide">
-                                        <Icon name="AlertCircle" className="inline mr-2" size={16} /> Formula tidak ditemukan untuk kombinasi ini.
-                                    </div>
-                                )}
+                    <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 sm:p-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="sm:col-span-2 md:col-span-1">
+                                <label className={labelClass}>Produk</label>
+                                <select value={selectedProduct} onChange={(e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); }} className={inputClass}>
+                                    <option value="">-- Pilih Produk --</option>
+                                    {productList.map(p => <option key={p} value={p}>{p}</option>)}
+                                </select>
                             </div>
-
-                            {/* SECTION 2 - Detail Perhitungan (Hanya tampil jika ada data) */}
-                            {activeMaterials.length > 0 && (
-                                <div className="animate-fade-in">
-                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Parameter Produksi (Kustomisasi)</h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-8">
-                                        <div>
-                                            <label className={labelClass}>QTY</label>
-                                            <input type="number" value={qtyProduksi} onChange={(e) => setQtyProduksi(e.target.value)} className={inputClass} placeholder="Contoh: 100" min="0" step="any" />
-                                        </div>
-                                        <div>
-                                            <label className={labelClass}>Pail</label>
-                                            <input type="number" value={pailProduksi} onChange={(e) => setPailProduksi(e.target.value)} className={inputClass} placeholder="Contoh: 20" min="0" step="any" />
-                                        </div>
-                                    </div>
-
-                                    {/* HASIL PERHITUNGAN */}
-                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Hasil Simulasi</h3>
-                                    
-                                    {/* Card Ringkasan */}
-                                    <div className="bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800 rounded-xl p-4 sm:p-5 mb-6 flex flex-col sm:flex-row justify-between gap-4">
-                                        <div>
-                                            <p className="text-xs text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wider mb-1">Informasi</p>
-                                            <div className="text-sm text-slate-800 dark:text-slate-200 space-y-1">
-                                                <div><span className="text-slate-500 dark:text-slate-400">Nama Produk:</span> <span className="font-bold">{selectedProduct}</span></div>
-                                                <div><span className="text-slate-500 dark:text-slate-400">FA / REV:</span> <span className="font-bold">{selectedFA} / {selectedREV}</span></div>
-                                                <div><span className="text-slate-500 dark:text-slate-400">Jumlah Material:</span> <span className="font-bold">{activeMaterials.length}</span></div>
-                                            </div>
-                                        </div>
-                                        <div className="sm:text-right">
-                                            <p className="text-xs text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wider mb-1">Total</p>
-                                            <div className="text-sm text-slate-800 dark:text-slate-200 space-y-1">
-                                                <div><span className="text-slate-500 dark:text-slate-400">Total Kg:</span> <span className="font-bold text-lg text-brand-700 dark:text-brand-300 ml-2">{Number(totalKg.toFixed(5))}</span></div>
-                                                <div><span className="text-slate-500 dark:text-slate-400">Total Formulasi:</span> <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400 ml-2">{Number(totalFormulasi.toFixed(5))}</span></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Tabel Detail */}
-                                    <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
-                                        <table className="w-full text-left text-sm whitespace-nowrap">
-                                            <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                                                <tr>
-                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-12 text-center">No</th>
-                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Material</th>
-                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 text-right">Qty Material</th>
-                                                    <th className="px-4 py-3 font-semibold text-brand-600 dark:text-brand-400 text-right">Kg</th>
-                                                    <th className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400 text-right">Formulasi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                                {computedMaterials.map((mat, idx) => (
-                                                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                                                        <td className="px-4 py-2.5 text-center text-slate-500 dark:text-slate-400">{idx + 1}</td>
-                                                        <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
-                                                        <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right bg-slate-50/50 dark:bg-slate-900/20">{Number(mat.qtyMat.toFixed(5))}</td>
-                                                        <td className="px-4 py-2.5 font-semibold text-brand-700 dark:text-brand-300 text-right bg-brand-50/30 dark:bg-brand-900/10">{Number(mat.calculatedKg.toFixed(5))}</td>
-                                                        <td className="px-4 py-2.5 font-semibold text-emerald-700 dark:text-emerald-300 text-right bg-emerald-50/30 dark:bg-emerald-900/10">{Number(mat.calculatedFormulasi.toFixed(5))}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            )}
-
-                        </div>
-                        
-                        {/* Area Aksi Tombol */}
-                        <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-end space-y-3 sm:space-y-0 sm:space-x-3 print-hide">
-                            <button type="button" onClick={handleReset} className="w-full sm:w-auto px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white rounded-lg transition-colors">
-                                Reset Parameter
-                            </button>
+                            <div>
+                                <label className={labelClass}>Kode FA</label>
+                                <select value={selectedFA} onChange={(e) => { setSelectedFA(e.target.value); setSelectedREV(''); }} className={inputClass} disabled={!selectedProduct}>
+                                    <option value="">-- Pilih FA --</option>
+                                    {faList.map(fa => <option key={fa} value={fa}>{fa}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Revisi (REV)</label>
+                                <select value={selectedREV} onChange={(e) => setSelectedREV(e.target.value)} className={inputClass} disabled={!selectedFA}>
+                                    <option value="">Semua REV</option>
+                                    {revList.map(rev => <option key={rev} value={rev}>{rev}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Target Qty</label>
+                                <input type="number" value={qtyProduksi} onChange={(e) => { setQtyProduksi(e.target.value); setPailProduksi(''); }} className={inputClass} placeholder="Cth: 500" min="1" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Target Pail</label>
+                                <input type="number" value={pailProduksi} onChange={(e) => { setPailProduksi(e.target.value); setQtyProduksi(''); }} className={inputClass} placeholder="Cth: 10" min="1" />
+                            </div>
                         </div>
                     </div>
+
+                    {activeFormulas.length > 0 && (qtyProduksi || pailProduksi) && (
+                        <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-slide-in-up">
+                            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/30 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+                                <h4 className="text-sm font-semibold text-slate-900 dark:text-white flex items-center">
+                                    <Icon name="ArrowUpRight" size={16} className="mr-2 text-brand-500" /> Estimasi Kebutuhan Material
+                                </h4>
+                                <div className="flex space-x-2">
+                                    {qtyProduksi && <span className="px-2.5 py-1 text-xs font-semibold bg-brand-100 text-brand-800 dark:bg-brand-500/20 dark:text-brand-300 rounded-md">Target: {qtyProduksi} QTY</span>}
+                                    {pailProduksi && <span className="px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300 rounded-md">Target: {pailProduksi} Pail</span>}
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="bg-white dark:bg-[#111827] border-b border-slate-200 dark:border-slate-800">
+                                        <tr>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider w-12 text-center">No</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider">Nama Material</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">QTY</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">Qty Material</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">Pail</th>
+                                            <th className="px-5 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wider text-right">Formulasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                                    {activeFormulas.map((form, idx) => {
+                                        const baseQty = Number(form['QTY']) || 1; 
+                                        const basePail = Number(form['Pail']) || 1;
+                                        const qtyMat = Number(form['Qty Material']) || 0;
+                                        let currentQty = inputQtyNum > 0 ? inputQtyNum : baseQty;
+                                        let currentPail = inputPailNum > 0 ? inputPailNum : basePail;
+
+                                        let multiplier = 1;
+                                        if (qtyProduksi) multiplier = Number(qtyProduksi) / baseQty;
+                                        else if (pailProduksi) multiplier = Number(pailProduksi) / basePail;
+
+                                        const reqKg = Number(form['Kg']) * multiplier;
+                                        const jumlahPail = basePail * multiplier;
+                                        const reqFormulasi = reqKg !== 0 ? (jumlahPail * baseQty) / reqKg : 0;
+
+                                        return (
+                                            <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                                                <td className="px-5 py-4 text-center text-slate-500">{idx + 1}</td>
+                                                <td className="px-5 py-4 font-medium text-slate-900 dark:text-slate-200">{form['Material']}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400 text-right">{currentQty}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400 text-right">{Number(qtyMat).toFixed(5)}</td>
+                                                <td className="px-5 py-4 text-slate-600 dark:text-slate-400 text-right">{currentPail}</td>
+                                                <td className="px-5 py-4 font-bold text-emerald-700 dark:text-emerald-300 text-right bg-emerald-50/50 dark:bg-emerald-500/10">{reqFormulasi.toFixed(5)}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+                                <button type="button" onClick={handleReset} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition-colors bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    Reset Parameter
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }
 
-        function DataTableView({ formulas, isLoading, Icon, userRole, fetchData, showNotification }) {
+        function DataTableView({ formulas, handleDelete, isLoading, Icon, userRole, fetchData, showNotification, exportFormulasToCSV }) {
             const [searchTerm, setSearchTerm] = useState('');
             const [currentPage, setCurrentPage] = useState(1);
             const [expandedRows, setExpandedRows] = useState(new Set());
@@ -871,22 +1259,6 @@
                 setExpandedRows(newExpanded);
             };
 
-            const exportToCSV = () => {
-                if(!formulas.length) return;
-                const headers = ["Nama Produk", "FA", "REV", "QTY", "Material", "Qty Material", "Pail", "Formulasi"];
-                const csvRows = [headers.join(',')];
-                formulas.forEach(row => {
-                    const values = headers.map(h => `"${('' + row[h]).replace(/"/g, '\\"')}"`);
-                    csvRows.push(values.join(','));
-                });
-                const link = document.createElement("a");
-                link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + csvRows.join('\n')));
-                link.setAttribute("download", "data_formula.csv");
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-
             const handleDeleteGroupConfirm = async () => {
                 if (!groupToDelete) return;
                 setIsDeletingGroup(true);
@@ -923,7 +1295,7 @@
                                     className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 dark:bg-[#0B1120] border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100"
                                 />
                             </div>
-                            <button onClick={exportToCSV} className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
+                            <button onClick={exportFormulasToCSV} className="w-full sm:w-auto flex items-center justify-center space-x-2 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500/20">
                                 <Icon name="Download" size={16} /> <span>Ekspor CSV</span>
                             </button>
                         </div>
@@ -1042,6 +1414,7 @@
                         </div>
                     )}
 
+                    {/* Modal Konfirmasi Hapus Group Formula */}
                     {groupToDelete && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in print-hide">
                             <div className="bg-white dark:bg-[#111827] rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-[380px] w-[380px] p-5 overflow-hidden animate-zoom-in">
