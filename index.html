@@ -992,7 +992,17 @@
             const [expandedRows, setExpandedRows] = useState(new Set());
             const [groupToDelete, setGroupToDelete] = useState(null);
             const [isDeletingGroup, setIsDeletingGroup] = useState(false);
+            
+            // --- STATE UNTUK EDIT GROUP FORMULA ---
+            const [groupToEdit, setGroupToEdit] = useState(null);
+            const [editHeaderData, setEditHeaderData] = useState({ namaProduk: '', fa: '', rev: '', qty: '' });
+            const [editMaterialsList, setEditMaterialsList] = useState([]);
+            const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+            
             const itemsPerPage = 10;
+
+            const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
+            const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
 
             const groupedFormulas = useMemo(() => {
                 const groups = {};
@@ -1074,6 +1084,100 @@
                 }
             };
 
+            // --- FUNGSI UNTUK EDIT GROUP FORMULA ---
+            const openEditModal = (group) => {
+                setEditHeaderData({
+                    namaProduk: group['Nama Produk'] || '',
+                    fa: group['FA'] || '',
+                    rev: group['REV'] || '',
+                    qty: group['QTY'] || ''
+                });
+                
+                setEditMaterialsList(group.materials.map(m => ({
+                    id: m.id || Date.now() + Math.random(),
+                    material: m['Material'] || '',
+                    qtyMaterial: m['Qty Material'] || '',
+                    pail: m['Pail'] || ''
+                })));
+                
+                setGroupToEdit(group);
+            };
+
+            const handleEditHeaderChange = (e) => {
+                const { name, value } = e.target;
+                setEditHeaderData(prev => ({ ...prev, [name]: value }));
+            };
+
+            const handleEditMaterialChange = (id, field, value) => {
+                if (field === 'qtyMaterial' && value.includes('.')) {
+                    if (value.split('.')[1].length > 5) return showNotification('Kebutuhan Dispense (Kg) maksimal 5 angka di belakang koma.', 'error');
+                }
+                setEditMaterialsList(prev => prev.map(m => m.id === id ? { ...m, [field]: value } : m));
+            };
+
+            const addEditMaterialRow = () => setEditMaterialsList(prev => [...prev, { id: Date.now(), material: '', qtyMaterial: '', pail: '' }]);
+            
+            const removeEditMaterialRow = (id) => { 
+                if (editMaterialsList.length > 1) setEditMaterialsList(prev => prev.filter(m => m.id !== id)); 
+            };
+
+            const handleSaveEdit = async (e) => {
+                e.preventDefault();
+                
+                // 1. Validasi Input
+                if (!editHeaderData.namaProduk || !editHeaderData.fa || !editHeaderData.qty) {
+                    return showNotification('Mohon lengkapi Informasi Produk dan Qty Total', 'error');
+                }
+                for (let i = 0; i < editMaterialsList.length; i++) {
+                    const m = editMaterialsList[i];
+                    if (!m.material || !m.qtyMaterial || !m.pail) return showNotification(`Mohon lengkapi data Material ke-${i+1}`, 'error');
+                }
+
+                setIsSubmittingEdit(true);
+                try {
+                    // 2. Hapus Data Lama (dari bawah ke atas)
+                    const idsToDelete = groupToEdit.materials.map(m => m.id).sort((a, b) => b - a);
+                    for (const id of idsToDelete) {
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                            method: 'POST', body: JSON.stringify({ action: 'deleteFormula', id }),
+                        });
+                        if (!response.ok) throw new Error("Gagal menghapus baris lama");
+                    }
+
+                    // 3. Tambah Data Baru yang sudah diedit
+                    for (const mat of editMaterialsList) {
+                        const baseQty = Number(editHeaderData.qty);
+                        const kg = (Number(mat.qtyMaterial) * baseQty) / 100;
+                        const formulasi = baseQty !== 0 ? (Number(mat.pail) / baseQty) * kg : 0;
+                        
+                        const payload = { 
+                            action: 'addFormula', 
+                            data: { 
+                                'Nama Produk': editHeaderData.namaProduk, 
+                                'FA': editHeaderData.fa, 
+                                'REV': editHeaderData.rev, 
+                                'QTY': baseQty, 
+                                'Material': mat.material, 
+                                'Qty Material': Number(mat.qtyMaterial), 
+                                'Kg': kg, 
+                                'Pail': Number(mat.pail), 
+                                'Formulasi': formulasi 
+                            } 
+                        };
+                        const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                        if(!response.ok) throw new Error("Gagal menyimpan pembaruan material");
+                    }
+                    
+                    showNotification('Formula berhasil diperbarui!', 'success');
+                    setGroupToEdit(null);
+                    await fetchData();
+                } catch (error) {
+                    showNotification('Terjadi kesalahan saat memperbarui formula.', 'error');
+                } finally {
+                    setIsSubmittingEdit(false);
+                }
+            };
+
             return (
                 <div className="bg-white dark:bg-[#111827] rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col animate-fade-in relative print-border">
                     <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
@@ -1135,7 +1239,7 @@
                                                         {userRole === 'Admin' && (
                                                             <Fragment>
                                                                 <button 
-                                                                    onClick={(e) => { e.stopPropagation(); showNotification('Fitur Edit akan segera hadir.', 'success'); }} 
+                                                                    onClick={(e) => { e.stopPropagation(); openEditModal(group); }} 
                                                                     className="p-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-brand-50 hover:text-brand-600 hover:border-brand-200 dark:hover:bg-brand-900/20 dark:hover:text-brand-400 text-slate-600 dark:text-slate-400 rounded-md transition-colors shadow-sm focus:outline-none"
                                                                     title="Edit Formula Group"
                                                                 >
@@ -1212,41 +1316,97 @@
                         </div>
                     )}
 
-                    {groupToDelete && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in print-hide">
-                            <div className="bg-white dark:bg-[#111827] rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-[380px] w-[380px] p-5 overflow-hidden animate-zoom-in">
-                                <div className="flex items-center justify-center w-9 h-9 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full mb-3">
-                                    <Icon name="AlertTriangle" size={20} className="text-red-600 dark:text-red-400" />
+                    {/* --- MODAL EDIT GROUP FORMULA --- */}
+                    {groupToEdit && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fade-in print-hide">
+                            <div className="bg-white dark:bg-[#111827] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 w-full max-w-4xl max-h-[90vh] flex flex-col animate-zoom-in overflow-hidden">
+                                
+                                {/* Modal Header */}
+                                <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center">
+                                        <Icon name="Edit" size={20} className="mr-2 text-brand-600 dark:text-brand-400" /> 
+                                        Edit Formula Group
+                                    </h3>
+                                    <button onClick={() => setGroupToEdit(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none">
+                                        <Icon name="X" size={24} />
+                                    </button>
                                 </div>
-                                <h3 className="text-lg font-semibold text-center text-slate-900 dark:text-white mb-2">Hapus Formula?</h3>
-                                <p className="text-sm text-center text-slate-500 dark:text-slate-400 mb-4">Formula berikut akan dihapus secara permanen.</p>
-                                
-                                <div className="text-sm text-slate-700 dark:text-slate-300 mb-4 space-y-1">
-                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Nama Produk</span> <span className="font-medium truncate">: {groupToDelete['Nama Produk']}</span></div>
-                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">FA/REV</span> <span className="font-medium">: {groupToDelete['FA']} / {groupToDelete['REV'] || '-'}</span></div>
-                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Qty Total</span> <span className="font-medium">: {groupToDelete['QTY']}</span></div>
-                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Material</span> <span className="font-medium text-brand-600 dark:text-brand-400">: {groupToDelete.materials.length} Material</span></div>
+
+                                {/* Modal Body (Scrollable Form) */}
+                                <div className="p-6 overflow-y-auto flex-1">
+                                    <div className="space-y-6">
+                                        {/* Edit Informasi Produk */}
+                                        <div className="bg-slate-50/50 dark:bg-slate-800/20 p-5 rounded-xl border border-slate-100 dark:border-slate-800/50">
+                                            <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Informasi Produk</h4>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div className="sm:col-span-2"><label className={labelClass}>Nama Produk <span className="text-red-500">*</span></label><input type="text" name="namaProduk" value={editHeaderData.namaProduk} onChange={handleEditHeaderChange} className={inputClass} required /></div>
+                                                <div><label className={labelClass}>Kategori FA <span className="text-red-500">*</span></label><input type="text" name="fa" value={editHeaderData.fa} onChange={handleEditHeaderChange} className={inputClass} required /></div>
+                                                <div><label className={labelClass}>Revisi (REV)</label><input type="text" name="rev" value={editHeaderData.rev} onChange={handleEditHeaderChange} className={inputClass} /></div>
+                                                <div className="sm:col-span-2">
+                                                    <label className={labelClass}>Qty Total <span className="text-red-500">*</span></label>
+                                                    <input type="number" name="qty" value={editHeaderData.qty} onChange={handleEditHeaderChange} className={inputClass} required min="1" step="any" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Edit Detail Material */}
+                                        <div>
+                                            <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-4">Detail Material</h4>
+                                            <div className="space-y-4">
+                                                {editMaterialsList.map((mat, index) => {
+                                                    const baseQty = Number(editHeaderData.qty) || 0;
+                                                    const kg = baseQty ? (Number(mat.qtyMaterial) * baseQty) / 100 : 0;
+                                                    const formulasi = baseQty && kg ? (Number(mat.pail) / baseQty) * kg : 0;
+
+                                                    return (
+                                                        <div key={mat.id} className="p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#111827] shadow-sm relative group">
+                                                            {editMaterialsList.length > 1 && (
+                                                                <button type="button" onClick={() => removeEditMaterialRow(mat.id)} className="absolute top-3 right-3 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md focus:outline-none transition-colors" title="Hapus Material">
+                                                                    <Icon name="Trash2" size={16} />
+                                                                </button>
+                                                            )}
+                                                            <h5 className="text-xs font-bold text-brand-600 dark:text-brand-400 mb-4 uppercase tracking-wider">Material {index + 1}</h5>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                                                                <div className="sm:col-span-1"><label className={labelClass}>Jenis Material <span className="text-red-500">*</span></label><input type="text" value={mat.material} onChange={(e) => handleEditMaterialChange(mat.id, 'material', e.target.value)} className={inputClass} required /></div>
+                                                                <div><label className={labelClass}>Kebutuhan Dispense (Kg) <span className="text-red-500">*</span></label><input type="number" value={mat.qtyMaterial} onChange={(e) => handleEditMaterialChange(mat.id, 'qtyMaterial', e.target.value)} className={inputClass} required min="0" step="0.00001" /></div>
+                                                                <div><label className={labelClass}>Pail <span className="text-red-500">*</span></label><input type="number" value={mat.pail} onChange={(e) => handleEditMaterialChange(mat.id, 'pail', e.target.value)} className={inputClass} required min="0" step="any" /></div>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-4 pt-4 mt-2 border-t border-slate-100 dark:border-slate-800">
+                                                                <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Kg (Otomatis)</p><p className="text-sm font-bold text-slate-800 dark:text-slate-200">{kg.toFixed(5)}</p></div>
+                                                                <div><p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">Formulasi (Otomatis)</p><p className="text-sm font-bold text-brand-600 dark:text-brand-400">{formulasi.toFixed(4)}</p></div>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <button type="button" onClick={addEditMaterialRow} className="mt-4 inline-flex items-center px-4 py-2 bg-brand-50 text-sm font-medium text-brand-600 rounded-lg hover:bg-brand-100 border border-brand-200 dark:bg-brand-500/10 dark:text-brand-400 dark:border-brand-800/50 transition-colors focus:outline-none">
+                                                <Icon name="FilePlus" size={16} className="mr-2" /> + Tambah Material
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <p className="text-xs text-center text-red-600 dark:text-red-400 font-medium mb-5">Data yang dihapus tidak dapat dikembalikan.</p>
-                                
-                                <div className="flex space-x-3">
+
+                                {/* Modal Footer */}
+                                <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end space-x-3">
                                     <button 
-                                        onClick={() => setGroupToDelete(null)}
-                                        disabled={isDeletingGroup}
-                                        className="flex-1 h-10 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                                        type="button" 
+                                        onClick={() => setGroupToEdit(null)} 
+                                        disabled={isSubmittingEdit}
+                                        className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-200 hover:text-slate-900 dark:hover:bg-slate-700 dark:hover:text-white rounded-lg transition-colors disabled:opacity-50"
                                     >
                                         Batal
                                     </button>
                                     <button 
-                                        onClick={handleDeleteGroupConfirm}
-                                        disabled={isDeletingGroup}
-                                        className="flex-1 h-10 flex items-center justify-center text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                                        type="button" 
+                                        onClick={handleSaveEdit} 
+                                        disabled={isSubmittingEdit} 
+                                        className="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg shadow-sm flex items-center justify-center transition-colors disabled:opacity-70"
                                     >
-                                        {isDeletingGroup ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : null}
-                                        {isDeletingGroup ? 'Menghapus...' : 'Hapus'}
+                                        {isSubmittingEdit ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : <Icon name="CheckCircle" size={16} className="mr-2" />}
+                                        <span>{isSubmittingEdit ? 'Menyimpan...' : 'Simpan Perubahan'}</span>
                                     </button>
                                 </div>
+                                
                             </div>
                         </div>
                     )}
