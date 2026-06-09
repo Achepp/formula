@@ -465,7 +465,7 @@
                             {isLoading ? (
                                 <div className="flex flex-col items-center justify-center h-64 animate-fade-in print-hide">
                                     <Icon name="Loader2" size={32} className="animate-spin-slow text-brand-600 mb-4" />
-                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Sinkronisasi data database...</p>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Sinkronisasi data ...</p>
                                 </div>
                             ) : configError ? null : ( 
                                 <div className="animate-slide-in-up print-full-width">
@@ -488,7 +488,10 @@
             const totalProduk = new Set(formulas.map(f => f['Nama Produk'])).size;
             const totalMaterial = materials.length;
             const totalFormula = formulas.length;
-            const totalProduksi = formulas.reduce((acc, curr) => acc + (Number(curr.Kg) || 0), 0);
+            const totalProduksi = formulas.reduce((acc, curr) => {
+                const kgVal = curr['Kg Otomatis'] !== undefined ? curr['Kg Otomatis'] : curr['Kg'];
+                return acc + (Number(kgVal) || 0);
+            }, 0);
 
             const statCards = [
                 { title: 'Total Produk', value: totalProduk, icon: 'Package', color: 'text-brand-600 dark:text-brand-400', bg: 'bg-brand-50 dark:bg-brand-500/10' },
@@ -512,7 +515,8 @@
                 const groups = [];
                 const map = new Map();
                 formulas.forEach(item => {
-                    const key = `${item['Nama Produk']}_${item['FA']}_${item['REV']}_${item['QTY']}`;
+                    const qtyVal = item['Qty Total'] !== undefined ? item['Qty Total'] : item['QTY'];
+                    const key = `${item['Nama Produk']}_${item['FA']}_${item['REV']}_${qtyVal}`;
                     if (!map.has(key)) {
                         const newGroup = {
                             key, 'Nama Produk': item['Nama Produk'], 'FA': item['FA'], 'REV': item['REV'], materialsCount: 0
@@ -797,64 +801,83 @@
             const [selectedProduct, setSelectedProduct] = useState('');
             const [selectedFA, setSelectedFA] = useState('');
             const [selectedREV, setSelectedREV] = useState('');
-            const [qtyProduksi, setQtyProduksi] = useState('');
-            const [pailProduksi, setPailProduksi] = useState('');
+            
+            const [qtyTotal, setQtyTotal] = useState('');
+            const [globalPail, setGlobalPail] = useState('');
+            const [materialsList, setMaterialsList] = useState([]);
 
             // Dropdown List Logic
             const productList = [...new Set(formulas.map(f => String(f['Nama Produk'] || '')))].filter(Boolean);
             const faList = [...new Set(formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct).map(f => String(f['FA'] || '')))].filter(Boolean);
             const revList = [...new Set(formulas.filter(f => String(f['Nama Produk'] || '') === selectedProduct && String(f['FA'] || '') === selectedFA).map(f => String(f['REV'] || '')))].filter(Boolean);
             
-            // Active Materials filtered by dropdown selections
-            const activeMaterials = useMemo(() => {
-                if (!selectedProduct || !selectedFA || !selectedREV) return [];
-                return formulas.filter(f => 
-                    String(f['Nama Produk'] || '') === selectedProduct && 
-                    String(f['FA'] || '') === selectedFA &&
-                    String(f['REV'] || '') === selectedREV
-                );
-            }, [formulas, selectedProduct, selectedFA, selectedREV]);
-
-            // Set initial QTY from database when formula is completely selected
+            // Set initial QTY and Materials from database when formula is completely selected
             useEffect(() => {
-                if (activeMaterials.length > 0 && !qtyProduksi && !pailProduksi) {
-                    setQtyProduksi(activeMaterials[0]['QTY'] || '');
+                if (selectedProduct && selectedFA && selectedREV) {
+                    const mats = formulas.filter(f => 
+                        String(f['Nama Produk'] || '') === selectedProduct && 
+                        String(f['FA'] || '') === selectedFA &&
+                        String(f['REV'] || '') === selectedREV
+                    );
+                    if (mats.length > 0) {
+                        const qtyVal = mats[0]['Qty Total'] !== undefined ? mats[0]['Qty Total'] : mats[0]['QTY'];
+                        setQtyTotal(qtyVal || '');
+                        setGlobalPail('');
+                        setMaterialsList(mats.map(m => {
+                            const dispVal = m['Kebutuhan Dispense'] !== undefined ? m['Kebutuhan Dispense'] : m['Qty Material'];
+                            return {
+                                id: m.id || Math.random(),
+                                material: m['Material'],
+                                qtyMaterial: dispVal,
+                                pail: m['Pail']
+                            };
+                        }));
+                    } else {
+                        setQtyTotal('');
+                        setMaterialsList([]);
+                    }
+                } else {
+                    setQtyTotal('');
+                    setMaterialsList([]);
                 }
-            }, [activeMaterials]);
+            }, [selectedProduct, selectedFA, selectedREV, formulas]);
 
-            const handleProductChange = (e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi(''); };
-            const handleFAChange = (e) => { setSelectedFA(e.target.value); setSelectedREV(''); setQtyProduksi(''); setPailProduksi(''); };
-            const handleREVChange = (e) => { setSelectedREV(e.target.value); setQtyProduksi(''); setPailProduksi(''); };
+            const handleProductChange = (e) => { setSelectedProduct(e.target.value); setSelectedFA(''); setSelectedREV(''); };
+            const handleFAChange = (e) => { setSelectedFA(e.target.value); setSelectedREV(''); };
+            const handleREVChange = (e) => { setSelectedREV(e.target.value); };
             
+            const handlePailChange = (id, val) => {
+                setMaterialsList(prev => prev.map(m => m.id === id ? { ...m, pail: val } : m));
+            };
+
+            const applyGlobalPail = () => {
+                if(globalPail !== '') {
+                    setMaterialsList(prev => prev.map(m => ({ ...m, pail: globalPail })));
+                }
+            };
+
             const handleReset = () => {
-                setSelectedProduct(''); setSelectedFA(''); setSelectedREV(''); setQtyProduksi(''); setPailProduksi('');
+                setSelectedProduct(''); setSelectedFA(''); setSelectedREV('');
             };
 
             // Calculations
             let totalKg = 0;
             let totalFormulasi = 0;
-            const inputQtyNum = Number(qtyProduksi) || 0;
-            const inputPailNum = Number(pailProduksi) || 0;
+            const baseQty = Number(qtyTotal) || 0;
 
-            const computedMaterials = activeMaterials.map(mat => {
-                const baseQty = Number(mat['QTY']) || 1;
-                const basePail = Number(mat['Pail']) || 1;
-                const qtyMat = Number(mat['Qty Material']) || 0;
+            const computedMaterials = materialsList.map(mat => {
+                const qtyMat = Number(mat.qtyMaterial) || 0;
+                const matPail = Number(mat.pail) || 0;
                 
-                const currentQty = inputQtyNum > 0 ? inputQtyNum : baseQty;
-                const currentPail = inputPailNum > 0 ? inputPailNum : basePail;
-
-                const kg = (qtyMat * currentQty) / 100;
-                const formulasi = currentQty > 0 ? (currentPail / currentQty) * kg : 0;
+                const kg = baseQty ? (qtyMat * baseQty) / 100 : 0;
+                const formulasi = baseQty && kg ? (matPail / baseQty) * kg : 0;
 
                 totalKg += kg;
                 totalFormulasi += formulasi;
 
                 return { 
                     ...mat, 
-                    displayQty: currentQty,
-                    displayPail: currentPail,
-                    displayQtyMat: qtyMat, 
+                    calculatedKg: kg, 
                     calculatedFormulasi: formulasi 
                 };
             });
@@ -899,7 +922,7 @@
                                     </div>
                                 </div>
 
-                                {selectedProduct && selectedFA && selectedREV && activeMaterials.length === 0 && (
+                                {selectedProduct && selectedFA && selectedREV && materialsList.length === 0 && (
                                     <div className="mt-4 p-3 bg-amber-50 text-amber-600 rounded-lg text-sm border border-amber-200 print-hide">
                                         <Icon name="AlertCircle" className="inline mr-2" size={16} /> Formula tidak ditemukan untuk kombinasi ini.
                                     </div>
@@ -907,17 +930,20 @@
                             </div>
 
                             {/* SECTION 2 - Detail Perhitungan (Hanya tampil jika ada data) */}
-                            {activeMaterials.length > 0 && (
+                            {materialsList.length > 0 && (
                                 <div className="animate-fade-in">
-                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Parameter Produksi (Kustomisasi)</h3>
+                                    <h3 className="text-sm font-semibold text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-2 mb-4">Parameter Simulasi</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 mb-8">
                                         <div>
-                                            <label className={labelClass}>Target Qty</label>
-                                            <input type="number" value={qtyProduksi} onChange={(e) => setQtyProduksi(e.target.value)} className={inputClass} placeholder="Contoh: 100" min="0" step="any" />
+                                            <label className={labelClass}>Qty Total (Simulasi)</label>
+                                            <input type="number" value={qtyTotal} onChange={(e) => setQtyTotal(e.target.value)} className={inputClass} placeholder="Contoh: 100" min="0" step="any" />
                                         </div>
                                         <div>
-                                            <label className={labelClass}>Target Pail</label>
-                                            <input type="number" value={pailProduksi} onChange={(e) => setPailProduksi(e.target.value)} className={inputClass} placeholder="Contoh: 20" min="0" step="any" />
+                                            <label className={labelClass}>Set Semua Pail (Opsional)</label>
+                                            <div className="flex space-x-2">
+                                                <input type="number" value={globalPail} onChange={(e) => setGlobalPail(e.target.value)} className={inputClass} placeholder="Set massal..." min="0" step="any" />
+                                                <button type="button" onClick={applyGlobalPail} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-slate-300">Terapkan</button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -931,7 +957,7 @@
                                             <div className="text-sm text-slate-800 dark:text-slate-200 space-y-1">
                                                 <div><span className="text-slate-500 dark:text-slate-400">Nama Produk:</span> <span className="font-bold">{selectedProduct}</span></div>
                                                 <div><span className="text-slate-500 dark:text-slate-400">FA / REV:</span> <span className="font-bold">{selectedFA} / {selectedREV}</span></div>
-                                                <div><span className="text-slate-500 dark:text-slate-400">Jumlah Material:</span> <span className="font-bold">{activeMaterials.length}</span></div>
+                                                <div><span className="text-slate-500 dark:text-slate-400">Jumlah Material:</span> <span className="font-bold">{materialsList.length}</span></div>
                                             </div>
                                         </div>
                                         <div className="sm:text-right">
@@ -949,22 +975,24 @@
                                             <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                                                 <tr>
                                                     <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 w-12 text-center">No</th>
-                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Material</th>
-                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 text-right">Qty Total</th>
+                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300">Jenis Material</th>
                                                     <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 text-right">Kebutuhan Dispense (Kg)</th>
-                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 text-right">Pail</th>
-                                                    <th className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400 text-right">Formulasi</th>
+                                                    <th className="px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 text-center w-32">Pail</th>
+                                                    <th className="px-4 py-3 font-semibold text-brand-600 dark:text-brand-400 text-right">Kg (Otomatis)</th>
+                                                    <th className="px-4 py-3 font-semibold text-emerald-600 dark:text-emerald-400 text-right">Formulasi (Otomatis)</th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                                                 {computedMaterials.map((mat, idx) => (
                                                     <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                                                         <td className="px-4 py-2.5 text-center text-slate-500 dark:text-slate-400">{idx + 1}</td>
-                                                        <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
-                                                        <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat.displayQty}</td>
-                                                        <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right bg-slate-50/50 dark:bg-slate-900/20">{Number(mat.displayQtyMat.toFixed(5))}</td>
-                                                        <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat.displayPail}</td>
-                                                        <td className="px-4 py-2.5 font-semibold text-emerald-700 dark:text-emerald-300 text-right bg-emerald-50/30 dark:bg-emerald-900/10">{Number(mat.calculatedFormulasi.toFixed(5))}</td>
+                                                        <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat.material}</td>
+                                                        <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right bg-slate-50/50 dark:bg-slate-900/20">{Number(mat.qtyMaterial).toFixed(5)}</td>
+                                                        <td className="px-4 py-2.5">
+                                                            <input type="number" value={mat.pail} onChange={(e) => handlePailChange(mat.id, e.target.value)} className={`${inputClass} !py-1 text-center`} />
+                                                        </td>
+                                                        <td className="px-4 py-2.5 font-semibold text-brand-700 dark:text-brand-300 text-right bg-brand-50/30 dark:bg-brand-900/10">{mat.calculatedKg.toFixed(5)}</td>
+                                                        <td className="px-4 py-2.5 font-semibold text-emerald-700 dark:text-emerald-300 text-right bg-emerald-50/30 dark:bg-emerald-900/10">{mat.calculatedFormulasi.toFixed(4)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -1004,13 +1032,15 @@
             const inputClass = "w-full px-3 py-2 text-sm bg-white dark:bg-[#0B1120] border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all placeholder-slate-400 text-slate-900 dark:text-slate-100";
             const labelClass = "block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 uppercase tracking-wide";
 
+
             const groupedFormulas = useMemo(() => {
                 const groups = {};
                 formulas.forEach(item => {
-                    const key = `${item['Nama Produk']}_${item['FA']}_${item['REV']}_${item['QTY']}`;
+                    const qtyVal = item['Qty Total'] !== undefined ? item['Qty Total'] : item['QTY'];
+                    const key = `${item['Nama Produk']}_${item['FA']}_${item['REV']}_${qtyVal}`;
                     if (!groups[key]) {
                         groups[key] = {
-                            key, 'Nama Produk': item['Nama Produk'], 'FA': item['FA'], 'REV': item['REV'], 'QTY': item['QTY'], materials: []
+                            key, 'Nama Produk': item['Nama Produk'], 'FA': item['FA'], 'REV': item['REV'], 'QTY': qtyVal, materials: []
                         };
                     }
                     groups[key].materials.push(item);
@@ -1040,16 +1070,20 @@
 
             const exportToCSV = () => {
                 if(!formulas.length) return;
-                const headers = ["Nama Produk", "FA", "REV", "Qty Total", "Material", "Kebutuhan Dispense (Kg)", "Pail", "Formulasi"];
+                const headers = ["Nama Produk", "FA", "REV", "Qty Total", "Material", "Kebutuhan Dispense", "Kg Otomatis", "Pail", "Formulasi"];
                 const csvRows = [headers.join(',')];
                 formulas.forEach(row => {
+                    const qtyVal = row['Qty Total'] !== undefined ? row['Qty Total'] : row['QTY'];
+                    const dispVal = row['Kebutuhan Dispense'] !== undefined ? row['Kebutuhan Dispense'] : row['Qty Material'];
+                    const kgVal = row['Kg Otomatis'] !== undefined ? row['Kg Otomatis'] : row['Kg'];
                     const values = [
                         `"${('' + row['Nama Produk']).replace(/"/g, '\\"')}"`,
                         `"${('' + row['FA']).replace(/"/g, '\\"')}"`,
                         `"${('' + row['REV']).replace(/"/g, '\\"')}"`,
-                        `"${('' + row['QTY']).replace(/"/g, '\\"')}"`,
+                        `"${('' + qtyVal).replace(/"/g, '\\"')}"`,
                         `"${('' + row['Material']).replace(/"/g, '\\"')}"`,
-                        `"${('' + row['Qty Material']).replace(/"/g, '\\"')}"`,
+                        `"${('' + dispVal).replace(/"/g, '\\"')}"`,
+                        `"${('' + kgVal).replace(/"/g, '\\"')}"`,
                         `"${('' + row['Pail']).replace(/"/g, '\\"')}"`,
                         `"${('' + row['Formulasi']).replace(/"/g, '\\"')}"`
                     ];
@@ -1093,12 +1127,15 @@
                     qty: group['QTY'] || ''
                 });
                 
-                setEditMaterialsList(group.materials.map(m => ({
-                    id: m.id || Date.now() + Math.random(),
-                    material: m['Material'] || '',
-                    qtyMaterial: m['Qty Material'] || '',
-                    pail: m['Pail'] || ''
-                })));
+                setEditMaterialsList(group.materials.map(m => {
+                    const dispVal = m['Kebutuhan Dispense'] !== undefined ? m['Kebutuhan Dispense'] : m['Qty Material'];
+                    return {
+                        id: m.id || Date.now() + Math.random(),
+                        material: m['Material'] || '',
+                        qtyMaterial: dispVal || '',
+                        pail: m['Pail'] || ''
+                    };
+                }));
                 
                 setGroupToEdit(group);
             };
@@ -1267,25 +1304,27 @@
                                                                         <tr>
                                                                             <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 w-12">No</th>
                                                                             <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300">Material</th>
-                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Qty Total</th>
-                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Kebutuhan Dispense (Kg)</th>
-                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Kg</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Kebutuhan Dispense</th>
+                                                                            <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Kg Otomatis</th>
                                                                             <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Pail</th>
                                                                             <th className="px-4 py-2 font-semibold text-slate-600 dark:text-slate-300 text-right">Formulasi</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                                                        {group.materials.map((mat, mIdx) => (
-                                                                            <tr key={mIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
-                                                                                <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{mIdx + 1}</td>
-                                                                                <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
-                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['QTY'] || '-'}</td>
-                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['Qty Material'] !== '' && mat['Qty Material'] !== undefined ? Number(Number(mat['Qty Material']).toFixed(5)) : '-'}</td>
-                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['Kg'] !== '' && mat['Kg'] !== undefined ? Number(Number(mat['Kg']).toFixed(5)) : '-'}</td>
-                                                                                <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['Pail'] || '-'}</td>
-                                                                                <td className="px-4 py-2.5 font-semibold text-brand-600 dark:text-brand-400 text-right">{Number(mat['Formulasi']).toFixed(4)}</td>
-                                                                            </tr>
-                                                                        ))}
+                                                                        {group.materials.map((mat, mIdx) => {
+                                                                            const dispVal = mat['Kebutuhan Dispense'] !== undefined ? mat['Kebutuhan Dispense'] : mat['Qty Material'];
+                                                                            const kgVal = mat['Kg Otomatis'] !== undefined ? mat['Kg Otomatis'] : mat['Kg'];
+                                                                            return (
+                                                                                <tr key={mIdx} className="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-colors">
+                                                                                    <td className="px-4 py-2.5 text-slate-500 dark:text-slate-400">{mIdx + 1}</td>
+                                                                                    <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-200">{mat['Material']}</td>
+                                                                                    <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{dispVal !== '' && dispVal !== undefined ? Number(Number(dispVal).toFixed(5)) : '-'}</td>
+                                                                                    <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{kgVal !== '' && kgVal !== undefined ? Number(Number(kgVal).toFixed(5)) : '-'}</td>
+                                                                                    <td className="px-4 py-2.5 text-slate-600 dark:text-slate-400 text-right">{mat['Pail'] || '-'}</td>
+                                                                                    <td className="px-4 py-2.5 font-semibold text-brand-600 dark:text-brand-400 text-right">{Number(mat['Formulasi']).toFixed(4)}</td>
+                                                                                </tr>
+                                                                            );
+                                                                        })}
                                                                     </tbody>
                                                                 </table>
                                                                 <div className="mt-4 flex flex-col sm:flex-row sm:space-x-8 space-y-2 sm:space-y-0 text-sm p-3 bg-slate-50 dark:bg-slate-800/30 rounded-lg border border-slate-100 dark:border-slate-800/50">
@@ -1312,6 +1351,46 @@
                             <div className="flex space-x-1">
                                 <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none">Prev</button>
                                 <button disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} className="px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 text-xs font-medium text-slate-600 dark:text-slate-300 disabled:opacity-50 hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none">Next</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- MODAL KONFIRMASI HAPUS GROUP FORMULA --- */}
+                    {groupToDelete && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in print-hide">
+                            <div className="bg-white dark:bg-[#111827] rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 max-w-[380px] w-[380px] p-5 overflow-hidden animate-zoom-in">
+                                <div className="flex items-center justify-center w-9 h-9 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full mb-3">
+                                    <Icon name="AlertTriangle" size={20} className="text-red-600 dark:text-red-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-center text-slate-900 dark:text-white mb-2">Hapus Formula?</h3>
+                                <p className="text-sm text-center text-slate-500 dark:text-slate-400 mb-4">Formula berikut akan dihapus secara permanen.</p>
+                                
+                                <div className="text-sm text-slate-700 dark:text-slate-300 mb-4 space-y-1">
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Nama Produk</span> <span className="font-medium truncate">: {groupToDelete['Nama Produk']}</span></div>
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">FA/REV</span> <span className="font-medium">: {groupToDelete['FA']} / {groupToDelete['REV'] || '-'}</span></div>
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Qty Total</span> <span className="font-medium">: {groupToDelete['QTY']}</span></div>
+                                    <div className="flex"><span className="w-24 shrink-0 text-slate-500">Material</span> <span className="font-medium text-brand-600 dark:text-brand-400">: {groupToDelete.materials.length} Material</span></div>
+                                </div>
+                                
+                                <p className="text-xs text-center text-red-600 dark:text-red-400 font-medium mb-5">Data yang dihapus tidak dapat dikembalikan.</p>
+                                
+                                <div className="flex space-x-3">
+                                    <button 
+                                        onClick={() => setGroupToDelete(null)}
+                                        disabled={isDeletingGroup}
+                                        className="flex-1 h-10 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-slate-200"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button 
+                                        onClick={handleDeleteGroupConfirm}
+                                        disabled={isDeletingGroup}
+                                        className="flex-1 h-10 flex items-center justify-center text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 transition-colors disabled:opacity-70 focus:outline-none focus:ring-2 focus:ring-red-500/50"
+                                    >
+                                        {isDeletingGroup ? <Icon name="Loader2" size={16} className="animate-spin-slow mr-2" /> : null}
+                                        {isDeletingGroup ? 'Menghapus...' : 'Hapus'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     )}
